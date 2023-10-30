@@ -10,7 +10,7 @@ import { usePDF, Resolution } from "react-to-pdf";
 
 const DashBoard = () => {
   const { toPDF, targetRef } = usePDF({
-    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`, resolution: Resolution.MEDIUM, page: { orientation: "landscape", },
+    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`, resolution: Resolution.NORMAL, page: { orientation: "landscape", },
     method: "open"
   });
   const { project } = useAppSelector(

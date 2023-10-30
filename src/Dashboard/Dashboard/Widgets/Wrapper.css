@@ -54,7 +54,7 @@
   flex-direction: column;
   place-items: center;
   place-content: space-evenly;
-  animation: fadeIn 1s ease-in;
+  animation: fadeIn 2s ease-in-out;
 }
 .graph {
   width: 100%;
@@ -62,9 +62,9 @@
 }
 @keyframes fadeIn {
   0% {
-    opacity: 0;
+    transform: scale(1); /* Starting scale */
   }
   100% {
-    opacity: 1;
+    transform: scale(1.1); /* Ending scale - adjust as needed for zoom level */
   }
 }
