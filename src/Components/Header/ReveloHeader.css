@@ -1,0 +1,22 @@
+.main-header-box {
+  height: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  object-fit: contain;
+  height: inherit;
+  padding: 5px;
+}
+.left-side-header {
+  height: inherit;
+  display: flex;
+  align-items: center;
+}
+.right-side-header {
+  height: inherit;
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+}

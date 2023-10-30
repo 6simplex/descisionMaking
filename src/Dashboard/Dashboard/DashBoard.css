@@ -1,0 +1,36 @@
+.main-dashBoard-wrapper {
+  padding: 5px;
+  /* filter: blur(5px);  */
+}
+
+.date-wrapper {
+  display: flex;
+  width: 75%;
+  flex-direction: row;
+  place-items: end;
+}
+
+.start-date-wrapper {
+  display: flex;
+  flex-direction: row;
+  /* place-content: space-between; */
+  padding: 1px;
+  width: 45%;
+}
+.button-refresh {
+  position: absolute;
+  right: 0;
+  padding-right: 10px;
+}
+.button-wrapper {
+  display: flex;
+  flex-direction: row;
+  /* place-content: space-between; */
+  padding: 1px;
+  width: 45%;
+}
+.chart-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
