@@ -70,7 +70,7 @@ const ReveloPie = (props: Props) => {
           ]
         ]
       }}
-      layers={['arcs', 'arcLabels', 'arcLinkLabels', 'legends',]}
+
       legends={[
         {
           anchor: 'bottom',
@@ -88,13 +88,14 @@ const ReveloPie = (props: Props) => {
           symbolShape: 'circle',
           effects: [
             {
-              on: 'hover',
+              on: "hover",
               style: {
                 itemTextColor: '#000'
               },
 
 
-            }
+            },
+
           ]
         }
       ]}
