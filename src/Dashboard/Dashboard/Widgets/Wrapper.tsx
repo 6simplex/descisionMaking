@@ -17,7 +17,7 @@ type Props = {
   label: string;
   noOfRows: [];
   outFields: any;
-  jurisdiction: any
+  jurisdiction: any;
 };
 
 const Wrapper = (props: Props) => {
@@ -35,20 +35,28 @@ const Wrapper = (props: Props) => {
     placeItems: "center",
   };
   const getReportPutOut = async () => {
-    const serverUrl = window.__rDashboard__.serverUrl
+    const serverUrl = window.__rDashboard__.serverUrl;
     setLoading(true);
     const payload: any[] = [];
     const getJtypeandJname = (): string[] => {
       if (props.jurisdiction === "All") {
-        return [userInfo.userInfo.jurisdictions[0].name, userInfo.userInfo.jurisdictions[0].type]
+        return [
+          userInfo.userInfo.jurisdictions[0].name,
+          userInfo.userInfo.jurisdictions[0].type,
+        ];
       } else if (props.jurisdiction) {
-        return [props.jurisdiction, "parliamentaryconstituencies"]
+        return [props.jurisdiction, "parliamentaryconstituencies"];
       } else {
-        return [userInfo.userInfo.jurisdictions[0].name, userInfo.userInfo.jurisdictions[0].type]
+        return [
+          userInfo.userInfo.jurisdictions[0].name,
+          userInfo.userInfo.jurisdictions[0].type,
+        ];
       }
-    }
+    };
     const reportOutPut = await axios.get(
-      `${serverUrl}/surveys/${project.name}/reports/${props.name}/output?jurisdictionName=${getJtypeandJname()[0]}&jurisdictionType=${getJtypeandJname()[1]}`
+      `${serverUrl}/surveys/${project.name}/reports/${props.name
+      }/output?jurisdictionName=${getJtypeandJname()[0]}&jurisdictionType=${getJtypeandJname()[1]
+      }`
     );
     if (reportOutPut.data.error) {
       setLoading(false);
@@ -69,13 +77,22 @@ const Wrapper = (props: Props) => {
       <div className="main-wrapper">
         {loading ? (
           <>
-            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                placeContent: "center",
+                placeItems: "center",
+                height: "inherit",
+              }}
+            >
               <Spin tip="Loading" />
               <p>Fetching Report...</p>
             </div>
           </>
         ) : (
           <>
+
             <div className="wrapper-header">
               <Typography className="header-label">{props.label}</Typography>
               <div className="header-buttons-wrapper">
@@ -86,7 +103,11 @@ const Wrapper = (props: Props) => {
                   >
                     <Button size="small" icon={<FullscreenOutlined />} />
                   </Link>
-                  <Button size="small" icon={<DownloadOutlined />} onClick={() => { }} />
+                  <Button
+                    size="small"
+                    icon={<DownloadOutlined />}
+                    onClick={() => { }}
+                  />
                   <Button
                     size="small"
                     onClick={() => {
@@ -99,7 +120,6 @@ const Wrapper = (props: Props) => {
             </div>
             {reportOutPuts.length > 0 ? (
               <>
-
                 <div className="graph-class">
                   {props.noOfRows.map((rows: any) => {
                     const classNameOfRow = rows.columns.join("_");
@@ -119,26 +139,41 @@ const Wrapper = (props: Props) => {
                                       <>
                                         {col === fieldName ? (
                                           <>
-                                            {props.outFields.outFields[col].type ===
-                                              "text" ? (
+                                            {props.outFields.outFields[col]
+                                              .type === "text" ? (
                                               <>
-
                                                 <div className="text">
-                                                  <div style={{ fontFamily: "sans-serif", fontSize: "large" }}>
-                                                    {props.outFields.outFields[col].label}
-                                                  </div>
-                                                  <div style={{ fontFamily: "sans-serif", fontSize: "3rem" }}>
+                                                  <div
+                                                    style={{
+                                                      fontFamily: "sans-serif",
+                                                      fontSize: "large",
+                                                    }}
+                                                  >
                                                     {
-                                                      props.outFields.outFields[col]
-                                                        .format.prefix
+                                                      props.outFields.outFields[
+                                                        col
+                                                      ].label
+                                                    }
+                                                  </div>
+                                                  <div
+                                                    style={{
+                                                      fontFamily: "sans-serif",
+                                                      fontSize: "3rem",
+                                                    }}
+                                                  >
+                                                    {
+                                                      props.outFields.outFields[
+                                                        col
+                                                      ].format.prefix
                                                     }
                                                     {reportOutPuts[0][col] ===
                                                       undefined
                                                       ? ""
-                                                      : (reportOutPuts.length)}
+                                                      : reportOutPuts.length}
                                                     {
-                                                      props.outFields.outFields[col]
-                                                        .format.suffix
+                                                      props.outFields.outFields[
+                                                        col
+                                                      ].format.suffix
                                                     }
                                                   </div>
                                                 </div>
@@ -161,25 +196,33 @@ const Wrapper = (props: Props) => {
                       </>
                     );
                   })}
-                  {props.outFields.type === "pieChart" ? <>
-                    <ReveloPie
-                      data={reportOutPuts}
-                      valueFieldName={props.outFields.widgetInfo.valueFieldName}
-                    />
-
-                  </> : <></>}
-                  {props.outFields.type === "barGraph" ? <>
-                    <ReveloBarGraph
-                      data={reportOutPuts}
-                      valueFieldName={props.outFields.widgetInfo.valueFieldName}
-                      xAxis={props.outFields.widgetInfo.xAxis.labelFieldName}
-                      yAxis={props.outFields.widgetInfo.yAxis.labelFieldName}
-
-                    />
-
-                  </> : <></>}
+                  {props.outFields.type === "pieChart" ? (
+                    <>
+                      <ReveloPie
+                        data={reportOutPuts}
+                        valueFieldName={
+                          props.outFields.widgetInfo.valueFieldName
+                        }
+                      />
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  {props.outFields.type === "barGraph" ? (
+                    <>
+                      <ReveloBarGraph
+                        data={reportOutPuts}
+                        valueFieldName={
+                          props.outFields.widgetInfo.valueFieldName
+                        }
+                        xAxis={props.outFields.widgetInfo.xAxis.labelFieldName}
+                        yAxis={props.outFields.widgetInfo.yAxis.labelFieldName}
+                      />
+                    </>
+                  ) : (
+                    <></>
+                  )}
                 </div>
-
               </>
             ) : (
               <></>

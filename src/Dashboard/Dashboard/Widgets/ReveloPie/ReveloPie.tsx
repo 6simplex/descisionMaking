@@ -7,6 +7,7 @@ type Props = {
 
 const ReveloPie = (props: Props) => {
 
+
   const createDataForPie = () => {
     const pieData: any[] = []
     const result: any[] = [];
@@ -24,23 +25,33 @@ const ReveloPie = (props: Props) => {
     result.forEach((element) => {
       Object.keys(element).forEach((val) => {
         pieData.push({
-          id: autoCaptialize(val),
-          label: autoCaptialize(val),
+          id: upperCase(val),
+          label: upperCase(val),
           value: element[val]
         })
       })
     })
     return pieData
   }
-  const autoCaptialize = (str: any): string => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+  const upperCase = (str: any): string => {
+    return str.toUpperCase()
   }
+  const MyCustomLayer = ({ centerX, centerY }: any) => {
+    return (
+      <g transform={`translate(${centerX}, ${centerY})`}>
+        <text textAnchor="middle" alignmentBaseline="middle" fontSize="1.1rem" fontWeight={500}>
+          {createDataForPie().reduce((total, item) => total + item.value, 0)}
+        </text>
+      </g>
+    );
+  };
 
   return (
+
     <ResponsivePie
       data={createDataForPie()}
       margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-      innerRadius={0.5}
+      innerRadius={0.56}
       padAngle={0.7}
       cornerRadius={3}
       activeOuterRadiusOffset={8}
@@ -55,7 +66,8 @@ const ReveloPie = (props: Props) => {
         ]
       }}
 
-      arcLinkLabel={e => `${autoCaptialize(e.id)}`}
+      layers={['arcs', 'arcLabels', 'arcLinkLabels', 'legends', MyCustomLayer]}
+      arcLinkLabel={e => `${upperCase(e.id)}`}
       arcLinkLabelsSkipAngle={10}
       arcLinkLabelsTextColor="#333333"
       arcLinkLabelsThickness={2}
@@ -66,7 +78,7 @@ const ReveloPie = (props: Props) => {
         modifiers: [
           [
             'darker',
-            2
+            3
           ]
         ]
       }}
@@ -79,12 +91,12 @@ const ReveloPie = (props: Props) => {
           translateX: 0,
           translateY: 56,
           itemsSpacing: 0,
-          itemWidth: 100,
+          itemWidth: 95,
           itemHeight: 18,
           itemTextColor: '#999',
           itemDirection: 'left-to-right',
           itemOpacity: 1,
-          symbolSize: 18,
+          symbolSize: 10,
           symbolShape: 'circle',
           effects: [
             {
@@ -93,10 +105,10 @@ const ReveloPie = (props: Props) => {
                 itemTextColor: '#000'
               },
 
-
             },
 
-          ]
+          ],
+
         }
       ]}
     />
