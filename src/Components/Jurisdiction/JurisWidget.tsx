@@ -1,34 +1,29 @@
-import { Button, Col, Row, Select, Typography } from "antd";
+import { Button, Select, Space, Typography } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../Redux/store/store";
 import cytoscape, {
   EdgeDefinition,
   NodeDefinition,
 } from "cytoscape";
-import { TRUE } from "ol/functions";
-const { Option } = Select;
-
-
+import DashBoard from "../../Dashboard/Dashboard/DashBoard";
+import "./Jurisdiction.css";
 interface SelectedValues {
-  [key: string]: string; 
+  [key: string]: string;
 }
 const JurisWidget: React.FC = () => {
+  const [jurisdiction, setJurisdiction] = useState();
   const [selectedValues, setSelectedValues] = useState<any>({});
+  const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
   const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions } =
     useAppSelector((state) => state.reveloUserInfo);
-
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
   let widgetsMap = new Map(childWidget);
-
-  useEffect(() => {
-    // createEntitySelectorPanel();
-  }, []);
-
+  
   const buildCompoundCYGraph = (dataGraph: any) => {
     const tempCyGraph = CyCMGraph(dataGraph);
     const roots = tempCyGraph.elements().roots();
@@ -48,7 +43,6 @@ const JurisWidget: React.FC = () => {
     });
     return parentChildCyGraph;
   };
-
   const extractAndAddChildren = (node: any, graph: any) => {
     let outgoers = node.outgoers();
     let elementsToAdd = [];
@@ -75,7 +69,6 @@ const JurisWidget: React.FC = () => {
               toId: edgeData.toId,
             },
           });
-
           if (elementsToAdd.length > 0) {
             graph.add(elementsToAdd);
           }
@@ -84,17 +77,14 @@ const JurisWidget: React.FC = () => {
       }
     }
   };
-
   const CyCMGraph = (graphData: any) => {
     const cyNodes: NodeDefinition[] = [];
     const cyEdges: EdgeDefinition[] = [];
     const vertices = graphData.entities;
-
     vertices.forEach((vertex: any) => {
       const vertexName = vertex.shortName;
       cyNodes.push({ data: { id: vertexName, ...vertex } });
     });
-
     const edges = graphData.relations;
     edges.forEach((edge: any) => {
       cyEdges.push({
@@ -115,16 +105,14 @@ const JurisWidget: React.FC = () => {
     return cy;
   };
   const obCMCYGraph = buildCompoundCYGraph(obcmSnapShotDetails);
-
   const hierarchyInfo = userInfo.userInfo.hierarchy;
-  const jurisdictionName = jurisdictions[0].name;
-  const jurisdictionType = jurisdictions[0].type;
+  const jurisdictionName = jurisdictions[0]?.name;
+  const jurisdictionType = jurisdictions[0]?.type;
   const obcmGraphNodes = obCMCYGraph.nodes();
   const assignedEntityNode = obCMCYGraph.nodes(
     "[id='" + jurisdictionType + "']"
   );
   ancestorsMap.set(jurisdictionType, jurisdictionName);
-  //create a map of ancestors from this root to this jursidiction
   const getAncestors = (
     entityNode: any,
     hierarchyInfo: any,
@@ -140,9 +128,7 @@ const JurisWidget: React.FC = () => {
       }
     }
   };
-
   getAncestors(assignedEntityNode, hierarchyInfo.parent, ancestorsMap);
-
   const getDescendants = (entityNode: any) => {
     let outgoers = entityNode.outgoers();
     if (outgoers.length === 2) {
@@ -161,7 +147,6 @@ const JurisWidget: React.FC = () => {
   if (immediateChildEntityNode) {
     getDescendants(immediateChildEntityNode);
   };
-
   const extractValueOptionsFromObject = (
     entityName: any,
     ancestorsMap: any
@@ -248,12 +233,12 @@ const JurisWidget: React.FC = () => {
     };
     widgetsMap.set(obcmEntity.name, selectobject);
     console.log(descendantValuesMap)
-    
+
     console.log(options)
     return options;
   };
   const populateChildWidget = (value: any, parentEntityName: any, selectoptions: any) => {
-
+    setSelectedOption(value)   
     let parentNode = obCMCYGraph.nodes("[id='" + parentEntityName + "']");
     let parentEntityValue = value;
     const updatedValues = { ...selectedValues, [parentEntityName]: parentEntityValue };
@@ -333,10 +318,10 @@ const JurisWidget: React.FC = () => {
       descendantValuesMap.current.set(childEntityName, values)
     }
     setSelectedValues(updatedValues);
+    // setSelectedOption(selectedValues[parentEntityName])
     setDisabledPanels(updatedDisabled);
-    console.log(selectedValues)
+    
   };
-
   const extractRecursively = (
     currentEntityNode: any,
     assignedEntityName: any,
@@ -382,42 +367,65 @@ const JurisWidget: React.FC = () => {
     });
     return arras.map((node: any, index: any) => {
       let selectOption: any = createEntitySelectorPanel('', node);
-      console.log(selectedValues)
+      console.log(selectedValues) 
+     console.log(selectedOption)
+
       return (
         <>
-          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'left', marginLeft: '10px' }}>
-            <div style={{ margin: '5px 3px 3px 15px' }}> <label>{node.label}</label></div>
-            <div>
-              <Select
-                key={node.value}
-                style={{ width: "200px", }}
-                defaultValue={selectOption[0]?.label}
-                //  value={selectedValues[node.name]}
-                onChange={(e) => {
-                  populateChildWidget(e, node.name, arras);
-                  createEntitySelectorPanel(e, node);
-                }}
-                // disabled={
-                //   index > 1 && selectedValues[arras[index - 1].name] === 'all'
-                // }
-                disabled={index > 0 && disabledPanels[arras[index - 1].name]}
-              >
-                {selectOption?.map((elss: any) => {
-                  return (
-                    <>
-                      <Select.Option value={elss.value}>{elss.label}</Select.Option>
-                    </>
-                  );
-                })}
-              </Select>
-            </div>
+          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
+          <Typography style={{marginLeft:'0.7rem'}}>{node.label}</Typography>
+          <div>
+            <Select
+              key={node.value}
+              style={{ width: "180px", marginTop:'3px', marginLeft:'0.5rem'}}
+              defaultValue={selectOption[0]?.label}
+              //value={selectedValues[node.name]}
+              onChange={(e) => {
+                populateChildWidget(e, node.name, arras);
+                createEntitySelectorPanel(e, node);
+              }}
+              // onSelect={(e: any) => { setApplyFilter(e) }} value={applyFilter === undefined ? "All" : applyFilter}
+              // disabled={
+              //   index > 1 && selectedValues[arras[index - 1].name] === 'all'
+              // }
+              disabled={index > 0 && disabledPanels[arras[index - 1].name]}
+            >
+              {selectOption?.map((elss: any) => {
+                return (
+                  <>
+                    <Select.Option value={elss.value}>{elss.label}</Select.Option>
+                  </>
+                );
+              })}
+            </Select>
           </div>
+          
+        </div>
 
         </>
       );
     });
+
   };
-  return <div style={{ margin: "30px 10px 10px 20px" }}>{selectWidget()}</div>;
+  return (<>
+  <div className='widget-wrapper'  >
+  <div className ='select-widget' >{selectWidget()}  </div>
+  <div className="button-wrapper">
+            <Space>
+              <Button type="primary" size="large" onClick={() => { setJurisdiction(selectedOption) }}>
+                Apply Filters
+              </Button>
+              <Button type="link" size="large" onClick={() => { setJurisdiction(undefined); setSelectedOption(undefined) }}>
+                Reset
+              </Button>
+            </Space>
+          </div>
+
+  </div>
+  <div><DashBoard  selectedvalue={jurisdiction}/></div>
+  </>
+  )
+    ;
 };
 
 export default JurisWidget;

@@ -41,15 +41,15 @@ const Wrapper = (props: Props) => {
     const getJtypeandJname = (): string[] => {
       if (props.jurisdiction === "All") {
         return [
-          userInfo.userInfo.jurisdictions[0].name,
-          userInfo.userInfo.jurisdictions[0].type,
+          userInfo.userInfo.jurisdictions[0]?.name,
+          userInfo.userInfo.jurisdictions[0]?.type,
         ];
       } else if (props.jurisdiction) {
         return [props.jurisdiction, "parliamentaryconstituencies"];
       } else {
         return [
-          userInfo.userInfo.jurisdictions[0].name,
-          userInfo.userInfo.jurisdictions[0].type,
+          userInfo.userInfo.jurisdictions[0]?.name,
+          userInfo.userInfo.jurisdictions[0]?.type,
         ];
       }
     };
@@ -62,7 +62,7 @@ const Wrapper = (props: Props) => {
       setLoading(false);
       return message.error("Something went Wrong");
     }
-    reportOutPut.data.features.forEach((outPut: any) => {
+    reportOutPut.data.features?.forEach((outPut: any) => {
       payload.push(outPut.properties);
     });
 

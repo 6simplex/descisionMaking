@@ -3,17 +3,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 4px 8px rgba(8, 8, 8, 0.8); 
 }
+
 .logo {
   object-fit: contain;
   height: inherit;
   padding: 5px;
 }
+
 .left-side-header {
   height: inherit;
   display: flex;
   align-items: center;
 }
+
 .right-side-header {
   height: inherit;
   display: flex;

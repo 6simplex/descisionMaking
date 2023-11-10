@@ -6,8 +6,6 @@ type Props = {
 }
 
 const ReveloPie = (props: Props) => {
-
-
   const createDataForPie = () => {
     const pieData: any[] = []
     const result: any[] = [];

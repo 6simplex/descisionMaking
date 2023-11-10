@@ -5,6 +5,7 @@ import ReveloHeader from "../Components/Header/ReveloHeader"
 import { Layout, Space } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import DashBoard from "./Dashboard/DashBoard";
+import JurisWidget from "../Components/Jurisdiction/JurisWidget";
 
 const layoutStyle: React.CSSProperties = {
     display: "flex",
@@ -36,7 +37,7 @@ const RDashBoard = () => {
                 <Layout style={layoutStyle}>
                     <Header style={headerStyle}><ReveloHeader userName={userInfo.userInfo.userName} orgName={userInfo.orgName} projectName={userInfo.userInfo.customerInfo.customerUXInfo.label} projectNameColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.textColor} iconColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.primaryDarkColor} /></Header>
                     <Content style={contentStyle}>
-                        <DashBoard />
+                        <JurisWidget />
                     </Content>
                 </Layout>
             </Space>

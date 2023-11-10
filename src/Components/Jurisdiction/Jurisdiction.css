@@ -1,0 +1,18 @@
+.widget-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    margin-left: 3px;
+}
+.button-wrapper {
+    display: flex;
+    flex-direction: row;
+    padding: 1px;
+    width: 17%;
+    margin-left: 1.5rem;
+    margin-top: 30px;
+  }
+  .select-widget{
+    margin: 20px 10px 10px 0px
+  }

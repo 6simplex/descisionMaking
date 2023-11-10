@@ -20,15 +20,10 @@
 .button-refresh {
   position: absolute;
   right: 0;
-  padding-right: 10px;
+  padding-right: 2rem;
+  margin-bottom: 20px;
 }
-.button-wrapper {
-  display: flex;
-  flex-direction: row;
-  /* place-content: space-between; */
-  padding: 1px;
-  width: 45%;
-}
+
 .chart-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
