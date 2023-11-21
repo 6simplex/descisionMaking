@@ -15,7 +15,7 @@ type Props = {
   iconColor: string
 };
 const ReveloHeader = (props: Props) => {
-  const serverUrl = "http://103.248.60.18:7050/reveloadmin35/revelo";
+  const serverUrl = window.__rDashboard__.serverUrl;
 
   const [imageData, setImageData] = useState();
   const [loading, setLoading] = useState(true);
