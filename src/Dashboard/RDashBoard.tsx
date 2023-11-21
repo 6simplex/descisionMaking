@@ -4,13 +4,11 @@ import { useNavigate } from "react-router-dom"
 import ReveloHeader from "../Components/Header/ReveloHeader"
 import { Layout, Space } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
-import DashBoard from "./Dashboard/DashBoard";
-import JurisWidget from "../Components/Jurisdiction/JurisWidget";
+import Dashboard from "./Dashboard/Dashboard";
 
 const layoutStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
-    height: "100%"
 };
 const contentStyle: React.CSSProperties = {
     flex: "1 1 auto",
@@ -30,6 +28,10 @@ const RDashBoard = () => {
         flex: "0 0 5%",
         paddingInline: 0,
         background: userInfo.userInfo.customerInfo.customerUXInfo.colors.primaryColor,
+        position:'fixed',
+        top:0,
+        width:"100%",
+        left: 0
     };
     return (
         <>
@@ -37,7 +39,7 @@ const RDashBoard = () => {
                 <Layout style={layoutStyle}>
                     <Header style={headerStyle}><ReveloHeader userName={userInfo.userInfo.userName} orgName={userInfo.orgName} projectName={userInfo.userInfo.customerInfo.customerUXInfo.label} projectNameColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.textColor} iconColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.primaryDarkColor} /></Header>
                     <Content style={contentStyle}>
-                        <JurisWidget />
+                        <Dashboard />
                     </Content>
                 </Layout>
             </Space>

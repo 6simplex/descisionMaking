@@ -21,6 +21,7 @@ type Props = {
 };
 
 const Wrapper = (props: Props) => {
+  console.log(props.jurisdiction)
   const { projectName } = useParams();
   const { project, userInfo } = useAppSelector((state) => state.reveloUserInfo);
   const [reportOutPuts, setReportOutPuts] = useState<any[]>([]);
@@ -34,6 +35,7 @@ const Wrapper = (props: Props) => {
     placeContent: "space-evenly",
     placeItems: "center",
   };
+  
   const getReportPutOut = async () => {
     const serverUrl = window.__rDashboard__.serverUrl;
     setLoading(true);
@@ -45,7 +47,7 @@ const Wrapper = (props: Props) => {
           userInfo.userInfo.jurisdictions[0]?.type,
         ];
       } else if (props.jurisdiction) {
-        return [props.jurisdiction, "parliamentaryconstituencies"];
+        return [props.jurisdiction.name,props.jurisdiction.type];
       } else {
         return [
           userInfo.userInfo.jurisdictions[0]?.name,
@@ -53,6 +55,7 @@ const Wrapper = (props: Props) => {
         ];
       }
     };
+    console.log(getJtypeandJname())
     const reportOutPut = await axios.get(
       `${serverUrl}/surveys/${project.name}/reports/${props.name
       }/output?jurisdictionName=${getJtypeandJname()[0]}&jurisdictionType=${getJtypeandJname()[1]
@@ -92,15 +95,19 @@ const Wrapper = (props: Props) => {
           </>
         ) : (
           <>
-
             <div className="wrapper-header">
               <Typography className="header-label">{props.label}</Typography>
               <div className="header-buttons-wrapper">
                 <Space>
                   <Link
-                    to={`/project/${projectName}/stats/${props.name}`}
+                    to={
+                      `/project/${projectName}/stats/${props.name}`
+                     
+                     }
                     target="_blank"
+                    state={{allProps : props}}
                   >
+               
                     <Button size="small" icon={<FullscreenOutlined />} />
                   </Link>
                   <Button
@@ -235,3 +242,4 @@ const Wrapper = (props: Props) => {
 };
 
 export default Wrapper;
+// /project/${projectName}/stats/${props.name}

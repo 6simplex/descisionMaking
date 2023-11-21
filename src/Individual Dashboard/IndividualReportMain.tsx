@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "./Redux/store/store";
+import { useAppDispatch, useAppSelector } from "../Redux/store/store";
 import {
   updateAsEntity,
-  updateBillStatus,
   updateDataSource,
   updateDomains,
   updateJurisdictions,
@@ -12,53 +10,43 @@ import {
   updateObcmSnapShotDetails,
   updateProject,
   updateProjectConceptModel,
-  updateSpatialVectorSource,
   updateUserInfo,
   updateUserList,
-} from "./Redux/main-slice/main-slice";
-import {
-  Datasource,
-  Domains,
-  Jurisdictions,
-  ObcmSnapShotDetails,
-  Project,
-} from "./revelo-Interface/common";
+} from "../Redux/main-slice/main-slice";
+import { Domains, Jurisdictions } from "../revelo-Interface/common";
 import { Progress, Typography, Button, Select } from "antd";
-import { fetchData } from "./utils/cutsomhooks";
-import { CyUserGraph, getAllDescendants } from "./utils/cytoscape";
-import { JurisdictionObject } from "./utils/jurisdiction";
-import { Navigate, useNavigate } from "react-router-dom";
-import { ProjectConceptModel } from "./revelo-Interface/conceptmodel"
+import { fetchData } from "../utils/cutsomhooks";
+import { CyUserGraph, getAllDescendants } from "../utils/cytoscape";
+import { JurisdictionObject } from "../utils/jurisdiction";
+import { useNavigate, useParams } from "react-router-dom";
+import IndividualDashboard from "./IndividualDashboard";
 
-function App() {
-  const serverUrl = window.__rDashboard__.serverUrl;
-  const navigation = useNavigate();
-  const { userInfo, project } = useAppSelector((state) => state.reveloUserInfo);
+
+function IndividualReportMain() {
+  let serverUrl = window.__rDashboard__.serverUrl;
+  const { name, projectName } = useParams()
+  const navigation = useNavigate()
+  const { userInfo } = useAppSelector((state) => state.reveloUserInfo);
   const [loadComplete, setLoadComplete] = useState(true);
   const [errorState, setErrorState] = useState(true);
   const [errorMessage, setErrorMessage] = useState(
     "Validating your Configuration..."
   );
   const [percentage, setPercentage] = useState(0);
-  const [projectMessage, setProjectMessage] = useState(false);
   const dispatch = useAppDispatch();
-
+  //orgToken for customer amdin
+  // axios.defaults.headers.common["Authorization"] = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ4S2FpTjVtVjl4dFA5MEhSTS1LR21TS2pZM1FTQWVhOHF5d3lxWHlLNUFZIn0.eyJleHAiOjE2OTA5NTQxNzcsImlhdCI6MTY4ODM2MjE3NywianRpIjoiYWY0ZGE1NGYtNzNkMC00ZGZjLTk1NzQtZGNmZDU0YTA2ZTNmIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgxL2F1dGgvcmVhbG1zL3JldmVsbzM1IiwiYXVkIjpbImhhd2tleWUiLCJyZXZlbG8iLCJhY2NvdW50Il0sInN1YiI6IjI0NjQzMzYxLTBmNWUtNDc1YS1iZjQ1LTcxNDZjMTA0MmMzZiIsInR5cCI6IkJlYXJlciIsImF6cCI6InJldmVsb2FkbWluMzUiLCJzZXNzaW9uX3N0YXRlIjoiOWIwMGI2NzQtMzgwYi00NGRkLWI1MzctODhhZDI0Njc2NzFmIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwOi8vbG9jYWxob3N0OjgwODAvKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJvcmdhZG1pbiIsInVtYV9hdXRob3JpemF0aW9uIiwiZGVmYXVsdC1yb2xlcy1yZXZlbG8zNSJdfSwicmVzb3VyY2VfYWNjZXNzIjp7Imhhd2tleWUiOnsicm9sZXMiOlsib3JnYWRtaW4iXX0sInJldmVsb2FkbWluMzUiOnsicm9sZXMiOlsib3JnYWRtaW4iXX0sInJldmVsbyI6eyJyb2xlcyI6WyJvcmdhZG1pbiJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJPcmcgQWRtaW4iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJvcmdhZG1pbiIsImdpdmVuX25hbWUiOiJPcmciLCJmYW1pbHlfbmFtZSI6IkFkbWluIiwiZW1haWwiOiJ3OW9yZ2FkbWluQDZzaW1wbGV4LmNvLmluIn0.pQbOvUkMv3IXvUIs6b7CAZ4GD2R1yMHoTAEnEF6F3BFuQQLzf6kzFFs3QyxRLckGUnsVKOa4VTpcmM49nRF-w288H7LfxO69OFVuj7xrgnv07Fi41vHZuKpLcpuHrgnf9pCEiSd7prXA7BiDFNarT9l1G_TkhBN4Jmjm16UOvPF0z0vtLI52xaF407bIi9nzJw6gTAnedo-J5nI4vovTXMmx1fvKliH1LIlxdnu5IR4UGFvtQgVsb6AKwzFXPlIEjr8EiIMbyrCtZHsrz-XIgz_WgZOEvWquXUXTnN5XTyUktOtbC6u14A_3M485JE2zJ17f-LF9zkr7XA362IJNtg"
+  ///====>>for local machine you need to hardcode your user token like below comments  ====>>>>
+  axios.defaults.headers.common["Authorization"] = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJyWWhVN1dKQ1pFN2JTNHJxSmFEUXNXVG5FSXlGdEpPbHAydVVRaTBFbUtRIn0.eyJleHAiOjE3MDI2MTg1NjksImlhdCI6MTcwMDAyNjU2OSwianRpIjoiZTE3NTFhOTUtYTdiNC00OTI4LWEyYTMtZjYxYzE2NmRiMGE1IiwiaXNzIjoiaHR0cDovLzEwMy4yNDguNjAuMTg6ODA5MC9hdXRoL3JlYWxtcy9yZXZlbG8zNSIsImF1ZCI6WyJoYXdrZXllIiwicmV2ZWxvIiwiYWNjb3VudCJdLCJzdWIiOiI2ZjY5NmE5NS0zOWIzLTQwYTItOGQ0ZC1lMTY1Njk1MDhiNjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZXZlbG9hZG1pbjM1Iiwic2Vzc2lvbl9zdGF0ZSI6ImYxMGEwZGQwLThlYTEtNGQ5OC1iMTM0LTI4YjhlMTYwNjBiMiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovLzEwMy4yNDguNjAuMTg6NzA1MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1tdGRjMzUiLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIiwiY291bnRyeWNvb3JkaW5hdG9yIiwiY3VzdG9tZXJhZG1pbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7Imhhd2tleWUiOnsicm9sZXMiOlsiY291bnRyeWNvb3JkaW5hdG9yIiwiY3VzdG9tZXJhZG1pbiJdfSwicmV2ZWxvYWRtaW4zNSI6eyJyb2xlcyI6WyJjdXN0b21lcmFkbWluIl19LCJyZXZlbG8iOnsicm9sZXMiOlsiY3VzdG9tZXJhZG1pbiJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBJTkMiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbl9pbmMiLCJnaXZlbl9uYW1lIjoiQWRtaW4iLCJmYW1pbHlfbmFtZSI6IklOQyIsImVtYWlsIjoiYWRtaW5faW5jQGdtYWlsLmNvbSJ9.jpDI6-ADES8hRLknNNXVE4GF07us3dvp8R2D19FVSJ6hsHLxNEwQrmyzm549kn9hxOcJrp6VSZp06SYx_KOc0JK_QW_492E35wKLnamwv91lMZJM6c7UF6JxCazHCP7FB5q-bVYH9bP1x0LRX2A0LU2tSSIFAiIJZUe88XAu4dUvaQcTQuxX8ciYNJetZG4KEz8jVxCebfGwL9MVapVpbCOUic10Tr_xbuYaXh__jxxOtW_epWCy-xkjOoCBEXP6NndNO_Vit_L-gGXtVuXU-OsfiYzehRyqydotzMSdq__UdFPsMF35oT9F2BXnskLFsoInEXoU34t9UXmV-uxhdw"
   useEffect(() => {
     postLoginLoading();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  if (localStorage.getItem("token")) {
-    axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem(
-      "token"
-    )}`;
-  }
-
-  axios.defaults.headers.common["Authorization"] = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJyWWhVN1dKQ1pFN2JTNHJxSmFEUXNXVG5FSXlGdEpPbHAydVVRaTBFbUtRIn0.eyJleHAiOjE3MDMwNTMyNTMsImlhdCI6MTcwMDQ2MTI1MywianRpIjoiOGRiYWNhNWItOGFkMS00OGU4LWE4MmMtY2RhOTQ5NDQyMzZjIiwiaXNzIjoiaHR0cDovLzEwMy4yNDguNjAuMTg6ODA5MC9hdXRoL3JlYWxtcy9yZXZlbG8zNSIsImF1ZCI6WyJoYXdrZXllIiwicmV2ZWxvIiwiYWNjb3VudCJdLCJzdWIiOiI2ZjY5NmE5NS0zOWIzLTQwYTItOGQ0ZC1lMTY1Njk1MDhiNjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJyZXZlbG9hZG1pbjM1Iiwic2Vzc2lvbl9zdGF0ZSI6IjYzZDQ4MzZkLTcwZmUtNDJmZC1hZjc4LTdkNjJhYjRkZjdkYyIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovLzEwMy4yNDguNjAuMTg6NzA1MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1tdGRjMzUiLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIiwiY291bnRyeWNvb3JkaW5hdG9yIiwiY3VzdG9tZXJhZG1pbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7Imhhd2tleWUiOnsicm9sZXMiOlsiY291bnRyeWNvb3JkaW5hdG9yIiwiY3VzdG9tZXJhZG1pbiJdfSwicmV2ZWxvYWRtaW4zNSI6eyJyb2xlcyI6WyJjdXN0b21lcmFkbWluIl19LCJyZXZlbG8iOnsicm9sZXMiOlsiY3VzdG9tZXJhZG1pbiJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBJTkMiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbl9pbmMiLCJnaXZlbl9uYW1lIjoiQWRtaW4iLCJmYW1pbHlfbmFtZSI6IklOQyIsImVtYWlsIjoiYWRtaW5faW5jQGdtYWlsLmNvbSJ9.Qq3OlOKQSdzrH8_mma33_hlPsVlaXYZhN7bo4BaPuJeXHjnzDU3wrh06thTJwWNY2oBb5hbAJXb7iZ4pcgee89zSkcviwnHhfkuy40F0Ignws-OnVsZwwYbJEVEAT_8-AYud6AlWogclKCsfPmftLXnIWLyEfgCWL-x2_WaveR-wGaxxfz7490q0pDvfK57pp_0YIulNiRE6b9QJk378FWQnuc3FEmLv_UJinspTGckoJNEsky1BsiFdVOKBg7IuOm8_AVk8YHlPoA6nu2Vdx2utTHI-TOj2fQnSrgSQiUPNslgcDWN1pwfRrdDKx4fSW9sZbq39D0kTDrrTTJhNNg"
   const postLoginLoading = () => {
     setPercentage(25);
     const principalUrl = `${serverUrl}/access/principal/web?clientName=webviewer&callback=cbk`;
     const iFoo = (url: string) => {
-      const iframe = document.createElement("iframe");
+      var iframe = document.createElement("iframe");
       iframe.src = url;
       iframe.name = "frame";
       iframe.style.height = "0px";
@@ -67,10 +55,11 @@ function App() {
       iframe.style.position = "absolute";
       iframe.style.bottom = "0px";
       document.body.appendChild(iframe);
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         iframe.onload = () => {
           axios
             .get(principalUrl)
+
             .then((res) => {
               resolve(res);
               document.body.removeChild(iframe);
@@ -99,7 +88,7 @@ function App() {
             throw new Error("invalid authorization, please login.");
           }
         }
-        const { userInfo, status } = data;
+        const { userInfo, message, status } = data;
 
         if (status === "failure" || !userInfo) {
           setLoadComplete(false);
@@ -107,14 +96,15 @@ function App() {
         }
         if (userInfo.role === "orgAdmin") {
           dispatch(updateUserInfo({ ...data }));
-          navigation("/customeradmin");
+          navigation("/customeradmin")
         } else {
           dispatch(updateUserInfo({ ...data }));
         }
+
         setTimeout(() => {
           if (userInfo.role === "orgAdmin") {
             dispatch(updateUserInfo({ ...data }));
-            navigation("/customeradmin");
+            navigation("/customeradmin")
             setPercentage(99);
             setLoadComplete(false);
           } else {
@@ -122,6 +112,7 @@ function App() {
             setPercentage(99);
             setLoadComplete(false);
           }
+
         }, 1000);
       })
       .catch((error) => {
@@ -141,7 +132,7 @@ function App() {
     setErrorMessage(`Intializing ${document.title}....`);
     //get user jurisdictions
     let error: boolean = true;
-    const userJurisdictions = userInfo.userInfo.jurisdictions;
+    let userJurisdictions = userInfo.userInfo.jurisdictions;
 
     if (userJurisdictions.length === 0) {
       setErrorMessage(
@@ -150,9 +141,9 @@ function App() {
       return error;
     }
     //At 3.0, we only support single jurisdiction. So take the first one.
-    const jurisdiction = userJurisdictions[0];
-    const jurisdictionName = jurisdiction.name;
-    const jurisdictionType = jurisdiction.type;
+    var jurisdiction = userJurisdictions[0];
+    let jurisdictionName = jurisdiction.name;
+    let jurisdictionType = jurisdiction.type;
     if (
       !jurisdictionName ||
       jurisdictionName.length === 0 ||
@@ -173,7 +164,7 @@ function App() {
       return error;
     }
     //get user's assigned projects
-    const assignedProjects = userInfo.userInfo.assignedProjects;
+    let assignedProjects = userInfo.userInfo.assignedProjects;
     if (assignedProjects.length === 0) {
       setErrorMessage(
         "You do not have any Project assigned. Please contact your Administrator and get a Project assigned."
@@ -181,7 +172,6 @@ function App() {
       return error;
     }
     //get the analytics datasource
-    // eslint-disable-next-line no-prototype-builtins
     if (userInfo.userInfo.hasOwnProperty("customerInfo") === false) {
       setErrorMessage(
         "Analytics data pipeline is required, but was not made available by Server. Please contact your Administrator."
@@ -195,6 +185,8 @@ function App() {
         );
         return error;
       }
+
+     
       if (!analyticsDatasource.hostName || !analyticsDatasource.portNumber) {
         setErrorMessage(
           "Analytics data pipeline connection info not available. Please contact your Administrator."
@@ -210,7 +202,7 @@ function App() {
       setErrorMessage(
         "Retrieving Boundaries, your Jurisdiction and assigned Project..."
       );
-      const obcmSnapShotDetails = await fetchData(
+      let obcmSnapShotDetails = await fetchData(
         `${serverUrl}/conceptmodels/w9obcm?details=true`
       );
       if (
@@ -218,10 +210,10 @@ function App() {
         obcmSnapShotDetails.error.status &&
         obcmSnapShotDetails.error.data
       ) {
-        const errorMessage =
+        let errorMessage =
           obcmSnapShotDetails.error.status +
           ": " +
-          obcmSnapShotDetails.error.data.message;
+          obcmSnapShotDetails.error.data;
         return setErrorMessage(
           "Unable to retrieve the Administrative boundaries. Have these been configured?. Error: " +
           errorMessage +
@@ -254,7 +246,7 @@ function App() {
       dispatch(updateObcmSnapShotDetails({ ...obcmSnapShotDetails }));
       setPercentage(15);
       //need to check if assigned one or more Projects then we will give drop down to selecet
-      const project = await fetchData(
+      let project = await fetchData(
         `${serverUrl}/surveys/${projectName}?details=true`
       );
       if (project.error) {
@@ -274,7 +266,6 @@ function App() {
           " has no source of data. Please contact your Administrator."
         );
       }
-
       if (!project.gisServerUrl) {
         return setErrorMessage(
           "Project " +
@@ -282,31 +273,21 @@ function App() {
           " has no GIS Server. Please contact your Administrator."
         );
       }
-      const assignedCM = project.conceptModelName;
+      let assignedCM = project.conceptModelName
       dispatch(updateProject({ ...project }));
       setPercentage(25);
-      const projectDataSource = await fetchData(
-        `${serverUrl}/datasources/${project.datasourceName}`
-      );
+      let projectDataSource = await fetchData(`${serverUrl}/datasources/${project.datasourceName}`)
       if (projectDataSource.error) {
-        return setErrorMessage("Error While Getting DataSource");
+        return setErrorMessage("Error While Getting DataSource")
       }
-      if (
-        projectDataSource.assignedCM === "" ||
-        !projectDataSource.assignedCM
-      ) {
-        return setErrorMessage("DataSource is not assigned to concept model!");
-      }
-      dispatch(updateDataSource({ ...projectDataSource }));
-      setPercentage(40);
-      const projectCM = await fetchData(
+      dispatch(updateDataSource({ ...projectDataSource }))
+      setPercentage(40)
+      let projectCM = await fetchData(
         `${serverUrl}/conceptmodels/${assignedCM}?details=true`
       );
       if (
         !projectCM ||
-        // eslint-disable-next-line no-prototype-builtins
         !projectCM.hasOwnProperty("entities") ||
-        // eslint-disable-next-line no-prototype-builtins
         !projectCM.hasOwnProperty("relations")
       ) {
         return setErrorMessage(
@@ -315,6 +296,7 @@ function App() {
           "'s concept model was not download correctly. It does not have required information. Please contact your Administrator."
         );
       }
+
       if (projectCM.entities.length === 0) {
         return setErrorMessage(
           "The Project " +
@@ -325,7 +307,7 @@ function App() {
       dispatch(updateProjectConceptModel({ ...projectCM }));
       setPercentage(50);
 
-      const asEntity = await fetchData(
+      let asEntity = await fetchData(
         `${serverUrl}/users/${userInfo.userInfo.userName}/profile/assignedsurveys/${projectName}/asentities`
       );
       if (asEntity.length === 0) {
@@ -337,16 +319,13 @@ function App() {
       }
       dispatch(updateAsEntity({ ...asEntity }));
       setPercentage(75);
-      const projectCMDomains = await fetchData(
+      let projectCMDomains = await fetchData(
         `${serverUrl}/conceptmodels/${assignedCM}/domains`
       );
-      if (projectCMDomains.error) {
-        return setErrorMessage(projectCMDomains.error.data.message);
-      }
       projectCMDomains.forEach((element: Domains) => {
         dispatch(updateDomains({ ...element }));
       });
-      const usersGraphJSON = await fetchData(
+      let usersGraphJSON = await fetchData(
         `${serverUrl}/${userInfo.orgName}/usersgraph`
       );
       if (!usersGraphJSON) {
@@ -354,163 +333,55 @@ function App() {
           "Users graph is not available from Server. Please contact your Admin."
         );
       }
-      const userGraph = CyUserGraph(usersGraphJSON);
-      const userNode = userGraph.nodes(
+      let userGraph = CyUserGraph(usersGraphJSON);
+      var userNode = userGraph.nodes(
         "[id='" + userInfo.userInfo.userName + "']"
       );
-      const userData = userNode.data();
-      const userNodeMap = new Map();
+      var userData = userNode.data();
+      var userNodeMap = new Map();
       getAllDescendants(userNode, userGraph, userNodeMap, "userName");
-      const childrenUsersArray = [userData.userName];
-      const userNodesIterator = userNodeMap.keys();
-      let userNodeEntry = userNodesIterator.next();
+      let childrenUsersArray = [userData.userName];
+      var userNodesIterator = userNodeMap.keys();
+      var userNodeEntry = userNodesIterator.next();
       while (userNodeEntry.done === false) {
-        const userName = userNodeEntry.value;
+        var userName = userNodeEntry.value;
         childrenUsersArray.push(userName);
         userNodeEntry = userNodesIterator.next();
       }
       dispatch(updateUserList(childrenUsersArray));
-      const jurisdiction = await fetchData(
+      let jurisdiction = await fetchData(
         `${serverUrl}/users/${userInfo.userInfo.userName}/profile/jurisdictions`
       );
       jurisdiction.forEach((element: Jurisdictions) => {
         dispatch(updateJurisdictions({ ...element }));
       });
-      const ocbmSnapShot = await fetchData(
+      let ocbmSnapShot = await fetchData(
         `${serverUrl}/conceptmodels/w9obcm/snapshot`
       );
       dispatch(updateObcmSnapShot({ ...ocbmSnapShot }));
-
-      const billDueDateArray: any[] = [];
-      let amount: number = 0;
-      userInfo.userInfo.customerInfo.bills.forEach((element: any) => {
-        if (!(element.status.toLocaleUpperCase() === "PAID"))
-          billDueDateArray.push({
-            dueDate: element.dueDate,
-            gracePeriod: element.gracePeriod,
-          });
-        amount = amount + element.amountBalance;
-      });
-
-      billDueDateArray.sort((a, b) => {
-        const dateA: any = new Date(a.dueDate);
-        const dateB: any = new Date(b.dueDate);
-
-        return dateA - dateB;
-      });
-      if (billDueDateArray.length > 0) {
-        const currentDate = new Date();
-        const providedDate: Date = new Date(billDueDateArray[0].dueDate);
-        const daysToAdd = billDueDateArray[0].gracePeriod;
-        const futureDate = new Date(billDueDateArray[0].dueDate);
-        futureDate.setDate(providedDate.getDate() + daysToAdd);
-        const futureDateString = futureDate.toISOString().split("T")[0];
-        const graceDate = new Date(futureDateString);
-        if (providedDate < currentDate) {
-          console.log("here");
-        }
-        if (graceDate < currentDate) {
-          const BillJson = {
-            date: billDueDateArray[0].dueDate,
-            status: true,
-            message: `An outstanding bill${billDueDateArray.length > 1 ? "s" : ""
-              } of ₹ ${amount.toFixed(2)}${providedDate < currentDate ? " was due on" : " is due on"
-              } ${billDueDateArray[0].dueDate
-              }. Please make the payment to restore app usage.`,
-            gracePeriod: false,
-          };
-          dispatch(updateBillStatus(BillJson));
-        } else if (graceDate > currentDate) {
-          const BillJson = {
-            date: billDueDateArray[0].dueDate,
-            status: false,
-            message: `An outstanding bill${billDueDateArray.length > 1 ? "s" : ""
-              } of ₹ ${amount.toFixed(2)}${providedDate < currentDate ? " was due on" : " is due on"
-              } ${billDueDateArray[0].dueDate
-              }. Please make the payment within the next ${billDueDateArray[0].gracePeriod
-              } day${billDueDateArray[0].gracePeriod > 1 ? "s" : ""}.`,
-            gracePeriod: true,
-          };
-          dispatch(updateBillStatus(BillJson));
-        }
-      }
-      if (projectCM.entities.length > 0) {
-        createAssignEntityLayer(
-          projectCM,
-          project,
-          projectDataSource,
-          asEntity,
-          obcmSnapShotDetails
-        );
-      }
       setPercentage(100);
       return setErrorState(false);
     }
   }
-
-  const createAssignEntityLayer = (
-    projectConceptModel: ProjectConceptModel,
-    project: Project,
-    dataSource: Datasource,
-    asEntity: any,
-    obcmSnapShotDetails: ObcmSnapShotDetails
-  ) => {
-    const payload: any = [];
-    projectConceptModel.entities.forEach(async (entity, index) => {
-      if (
-        entity.name !== `trips_${project.name}` &&
-        entity.name !== `tripstops_${project.name}` &&
-        entity.name !== `tripmetrics_${project.name}`
-      ) {
-        if (entity.type === "spatial") {
-          let asEntityStyle: any = {};
-          Object.keys(asEntity).forEach((key) => {
-            if (`${key}_${project.name}` === entity.name) {
-              asEntityStyle = asEntity[key];
-            }
-          });
-          const zindex = obcmSnapShotDetails.entities.length + index + 1;
-          const data = {
-            url: `${projectConceptModel.gisServerUrl}/wfs?service=WFS&version=1.1.0&request=GetFeature&typename=${projectConceptModel.datasourceName}ws:${entity.name}&outputFormat=application/json&srsname=EPSG:${dataSource.properties.wkid}`,
-            zIndex: zindex,
-            featureProjection: `EPSG:${dataSource.properties.wkid}`,
-            properties: entity,
-            asEntityStyle: asEntityStyle,
-          };
-          payload.push(data);
-        }
-      }
-    });
-    dispatch(updateSpatialVectorSource(payload));
-  };
   useEffect(() => {
     if (userInfo.status === "success") {
       if (userInfo.userInfo.role === "orgAdmin") {
-        return;
+        return
+
       } else {
-        if (userInfo.userInfo.assignedProjects.length === 1) {
-          const projectName =
-            userInfo.userInfo.assignedProjects[0].name.split("_")[0];
-          getReveloArtifacts(projectName);
+        if (typeof (projectName) === "string") {
+          getReveloArtifacts(projectName)
         }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
-  // const doLogout = () => {
-  //   const logoutUrl = window.__hawkeye__.hawkeyeAdminLogoutUrl;
-  //   axios.post(logoutUrl, "").finally(() => {
-  //     axios.post(process.env.PUBLIC_URL + "/logout").finally(() => {
-  //       window.location.href = process.env.PUBLIC_URL;
-  //       window.location.reload()
-  //     });
-  //   });
-  // };
   return (
     <>
+
       {!errorState ? (
         <>
-          <Navigate to={`/project/${project.name}`} replace={true} />
+          <IndividualDashboard reportName={`${name}`} />
         </>
       ) : (
         <>
@@ -569,11 +440,7 @@ function App() {
                           marginRight: "1rem",
                         }}
                       >
-                        {userInfo.userInfo.assignedProjects.length > 1
-                          ? projectMessage
-                            ? errorMessage
-                            : "Please Select Project You Want to access"
-                          : errorMessage}
+                        {errorMessage}
                       </Typography>
                       {errorMessage === "Validating your Configuration..." ||
                         errorMessage ===
@@ -587,7 +454,8 @@ function App() {
                               marginLeft: "1rem",
                               marginRight: "1.5rem",
                             }}
-                            onClick={() => { }}
+                            onClick={() => {
+                            }}
                           >
                             Logout
                           </Button>
@@ -597,7 +465,7 @@ function App() {
                   ) : (
                     <></>
                   )}
-                  {userInfo.userInfo.assignedProjects.length > 1 ? (
+                  {/* {userInfo.userInfo.assignedProjects.length > 1 ? (
                     <>
                       <Select
                         style={{ marginRight: "2rem" }}
@@ -620,8 +488,8 @@ function App() {
                       </Select>
                     </>
                   ) : (
-                    <></>
-                  )}
+                    null
+                  )} */}
                 </>
               )}
             </div>
@@ -631,4 +499,4 @@ function App() {
     </>
   );
 }
-export default App;
+export default IndividualReportMain;
