@@ -33,7 +33,7 @@ const ReveloPie = (props: Props) => {
     })
     return pieData
   }
- 
+
   const upperCase = (str: any): string => {
     return str.toUpperCase()
   }
@@ -68,7 +68,7 @@ const ReveloPie = (props: Props) => {
       }}
 
       layers={['arcs', 'arcLabels', 'arcLinkLabels', 'legends', MyCustomLayer]}
-      arcLabel={e=>`${(e.value / createDataForPie().reduce((total, item) => total + item.value, 0) * 100).toFixed(2)}%`}
+      arcLabel={e => `${(e.value / createDataForPie().reduce((total, item) => total + item.value, 0) * 100).toFixed(2)}%`}
       arcLinkLabel={e => `${upperCase(e.id)}`}
       arcLinkLabelsSkipAngle={10}
       arcLinkLabelsTextColor="#333333"
@@ -86,12 +86,12 @@ const ReveloPie = (props: Props) => {
       }}
       tooltip={(e) => (
         <>
-        <div style={{display:"flex",flexDirection:"row",placeItems:"center",placeContent:"center",backgroundColor:"white",padding:"5px",zIndex:9,boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)"}}>
-          <svg width="11" height="11" style={{marginRight:"4px"}}>
-        <rect width={11} height={11} fill={e.datum.color} rx={0} ry={0}  stroke={e.datum.color}// Set the border color
-        strokeWidth="2" ></rect></svg> 
-        <Typography style={{fontSize:"11px",fontFamily:"sans-serif",fontWeight:"bold"}}>{`${e.datum.id}: ${e.datum.formattedValue} (${(e.datum.value / createDataForPie().reduce((total, item) => total + item.value, 0) * 100).toFixed(2)}%)`}</Typography>
-    </div> </> )}
+          <div style={{ display: "flex", flexDirection: "row", placeItems: "center", placeContent: "center", backgroundColor: "white", padding: "5px", zIndex: 9, boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)" }}>
+            <svg width="11" height="11" style={{ marginRight: "4px" }}>
+              <rect width={11} height={11} fill={e.datum.color} rx={0} ry={0} stroke={e.datum.color}// Set the border color
+                strokeWidth="2" ></rect></svg>
+            <Typography style={{ fontSize: "11px", fontFamily: "sans-serif", fontWeight: "bold" }}>{`${e.datum.id}: ${e.datum.formattedValue} (${(e.datum.value / createDataForPie().reduce((total, item) => total + item.value, 0) * 100).toFixed(2)}%)`}</Typography>
+          </div> </>)}
       legends={[
         {
           anchor: 'bottom',

@@ -21,7 +21,6 @@ type Props = {
 };
 
 const Wrapper = (props: Props) => {
-  console.log(props.jurisdiction)
   const { projectName } = useParams();
   const { project, userInfo } = useAppSelector((state) => state.reveloUserInfo);
   const [reportOutPuts, setReportOutPuts] = useState<any[]>([]);
@@ -35,7 +34,7 @@ const Wrapper = (props: Props) => {
     placeContent: "space-evenly",
     placeItems: "center",
   };
-  
+
   const getReportPutOut = async () => {
     const serverUrl = window.__rDashboard__.serverUrl;
     setLoading(true);
@@ -47,7 +46,7 @@ const Wrapper = (props: Props) => {
           userInfo.userInfo.jurisdictions[0]?.type,
         ];
       } else if (props.jurisdiction) {
-        return [props.jurisdiction.name,props.jurisdiction.type];
+        return [props.jurisdiction.name, props.jurisdiction.type];
       } else {
         return [
           userInfo.userInfo.jurisdictions[0]?.name,
@@ -55,23 +54,39 @@ const Wrapper = (props: Props) => {
         ];
       }
     };
-    console.log(getJtypeandJname())
-    const reportOutPut = await axios.get(
-      `${serverUrl}/surveys/${project.name}/reports/${props.name
-      }/output?jurisdictionName=${getJtypeandJname()[0]}&jurisdictionType=${getJtypeandJname()[1]
-      }`
-    );
-    if (reportOutPut.data.error) {
-      setLoading(false);
-      return message.error("Something went Wrong");
-    }
-    reportOutPut.data.features?.forEach((outPut: any) => {
-      payload.push(outPut.properties);
-    });
+    let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
+    let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
+    try {
+      const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_${props.name}/_search`, {
+        size: 1000,
+        "query": {
+          "dis_max": {
+            "queries": [
+              { "match": { jurisdictionType: getJtypeandJname()[1], } },
+              { "match": { jurisdictionName: getJtypeandJname()[0] } }
+            ]
+          }
+        }
+      })
 
-    setReportOutPuts(payload);
-    setLoading(false);
+      if (reportOutPut.data.error) {
+        setLoading(false);
+        return message.error("Something went Wrong");
+      }
+      reportOutPut.data.hits.hits.forEach((outPut: any) => {
+        payload.push(outPut._source);
+      });
+
+      setReportOutPuts(payload);
+      setLoading(false);
+    } catch (err) {
+      console.log(err)
+      setLoading(false);
+
+    }
+
   };
+
   useEffect(() => {
     getReportPutOut();
   }, [refresh, props.jurisdiction]);
@@ -102,12 +117,12 @@ const Wrapper = (props: Props) => {
                   <Link
                     to={
                       `/project/${projectName}/stats/${props.name}`
-                     
-                     }
+
+                    }
                     target="_blank"
-                    state={{allProps : props}}
+                    state={{ allProps: props }}
                   >
-               
+
                     <Button size="small" icon={<FullscreenOutlined />} />
                   </Link>
                   <Button
@@ -125,6 +140,7 @@ const Wrapper = (props: Props) => {
                 </Space>
               </div>
             </div>
+            {console.log(reportOutPuts)}
             {reportOutPuts.length > 0 ? (
               <>
                 <div className="graph-class">
@@ -138,6 +154,7 @@ const Wrapper = (props: Props) => {
                           style={rowStyle}
                         >
                           {rows.columns.map((col: any) => {
+                            console.log(col)
                             return (
                               <>
                                 {Object.keys(props.outFields.outFields).map(
@@ -173,6 +190,7 @@ const Wrapper = (props: Props) => {
                                                         col
                                                       ].format.prefix
                                                     }
+
                                                     {reportOutPuts[0][col] ===
                                                       undefined
                                                       ? ""
@@ -232,7 +250,11 @@ const Wrapper = (props: Props) => {
                 </div>
               </>
             ) : (
-              <></>
+              <>
+                <div className="graph-class" style={{ display: "flex", flexDirection: "column", placeItems: "center", placeContent: "center" }}>
+                  <Typography>No Data Display</Typography>
+                </div>
+              </>
             )}
           </>
         )}
@@ -242,4 +264,4 @@ const Wrapper = (props: Props) => {
 };
 
 export default Wrapper;
-// /project/${projectName}/stats/${props.name}
+

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import ReveloHeader from "../Components/Header/ReveloHeader"
 import { Layout, Space } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
-import Dashboard from "./Dashboard/Dashboard";
+import Dashboard from "./Dashboard/DashBoard";
 
 const layoutStyle: React.CSSProperties = {
     display: "flex",
