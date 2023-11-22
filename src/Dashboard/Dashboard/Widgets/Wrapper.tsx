@@ -46,7 +46,7 @@ const Wrapper = (props: Props) => {
           userInfo.userInfo.jurisdictions[0]?.type,
         ];
       } else if (props.jurisdiction) {
-        return [props.jurisdiction.name, props.jurisdiction.type];
+        return (props.jurisdiction.name, props.jurisdiction.type);
       } else {
         return [
           userInfo.userInfo.jurisdictions[0]?.name,
@@ -140,7 +140,7 @@ const Wrapper = (props: Props) => {
                 </Space>
               </div>
             </div>
-            {console.log(reportOutPuts)}
+            {/* {console.log(reportOutPuts)} */}
             {reportOutPuts.length > 0 ? (
               <>
                 <div className="graph-class">
@@ -154,7 +154,7 @@ const Wrapper = (props: Props) => {
                           style={rowStyle}
                         >
                           {rows.columns.map((col: any) => {
-                            console.log(col)
+                            // console.log(col)
                             return (
                               <>
                                 {Object.keys(props.outFields.outFields).map(
@@ -252,7 +252,7 @@ const Wrapper = (props: Props) => {
             ) : (
               <>
                 <div className="graph-class" style={{ display: "flex", flexDirection: "column", placeItems: "center", placeContent: "center" }}>
-                  <Typography>No Data Display</Typography>
+                  <Typography>No Data to Display</Typography>
                 </div>
               </>
             )}

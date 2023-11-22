@@ -36,8 +36,6 @@ const IndividualReport = (props: any) => {
       getIndividualReportOutput();
     }
   }
-
-
   // useEffect(() => {
   //   getIndividualReportOutput();
   // }, [name])
@@ -67,8 +65,6 @@ const IndividualReport = (props: any) => {
     console.log(payload)
     setLoading(false);
   }
-
-
 
   return (
     <>

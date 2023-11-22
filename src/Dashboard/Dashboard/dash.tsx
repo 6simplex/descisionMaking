@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Wrapper from "./Widgets/Wrapper";
 import { Button, Divider, Spin, message } from "antd";
-import "./DashBoard.css";
 import { useAppSelector } from "../../Redux/store/store";
 import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";

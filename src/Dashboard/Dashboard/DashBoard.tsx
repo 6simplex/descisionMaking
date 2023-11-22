@@ -1,25 +1,27 @@
-import {  Button, Divider, Select, Space, Spin, Typography, message} from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { Button, Divider, Select, Space, Spin, Typography, message } from "antd";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { useAppSelector } from "../../Redux/store/store";
 import cytoscape, {
   EdgeDefinition,
   NodeDefinition,
 } from "cytoscape";
-import "./DashBoard.css";
+import "./Dashboard.css";
 import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { usePDF, Resolution } from "react-to-pdf";
 import Wrapper from "./Widgets/Wrapper";
 
 const Dashboard: React.FC = () => {
-  const [jurisdiction, setJurisdiction] = useState();
+  const [jurisdiction, setJurisdiction] = useState<any>();
   const [reset, setReset] = useState(false);
+  const [array, setArray] = useState([]);
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
+  const [, forceUpdate] = useReducer((x: any) => x + 1, 0);
   const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions } =
     useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
@@ -213,15 +215,7 @@ const Dashboard: React.FC = () => {
   const createEntitySelectorPanel = (value: any, obcmEntity: any) => {
     let options: any[] = [];
     let selectedValue = value;
-   if(reset){
-     options = [
-      {
-        value: "all",
-        label: "All",
-        selected: true,
-      },
-    ]
-   }
+
     if (ancestorsMap.has(obcmEntity?.name) === true) {
       var jurisdictionName = ancestorsMap.get(obcmEntity.name);
       options = [
@@ -230,6 +224,8 @@ const Dashboard: React.FC = () => {
           label: jurisdictionName,
         },
       ];
+
+
 
     } else if (descendantsMap.has(obcmEntity?.name) === true) {
       const retrievedValue = descendantValuesMap.current?.get(obcmEntity?.name);
@@ -241,6 +237,7 @@ const Dashboard: React.FC = () => {
             selected: true,
           });
         });
+
       } else {
         options = [
           {
@@ -253,6 +250,7 @@ const Dashboard: React.FC = () => {
     }
     else {
       options = extractValueOptionsFromObject(immediateChildEntityNode.data().name, ancestorsMap);
+
     }
     selectedValue = jurisdictionName ? jurisdictionName : value
     let existingSelectObject = widgetsMap.get(obcmEntity?.name);
@@ -268,43 +266,29 @@ const Dashboard: React.FC = () => {
     return options;
   };
   const populateChildWidget = (value: any, parentEntityName: any, selectoptions: any, index: any) => {
-    console.log(value)
-    const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
       name: value,
       type: parentEntityName,
     })
-    
+
     let options: any = [];
     let parentNode = obCMCYGraph.nodes("[id='" + parentEntityName + "']");
     let parentEntityValue = value;
     const updatedValues = { ...selectedValues, [parentEntityName]: parentEntityValue };
     const currentIndex = selectoptions.findIndex((item: any) => item.value === parentEntityValue);
     const updatedDisabled: any = { ...disabledPanels };
+    setSelectedValues(updatedValues);
+    setDisabledPanels(updatedDisabled);
     let disableNext = false;
     if (parentEntityValue === "all") {
-      updatedValues[parentEntityName] = previousSelectedValue;
-      console.log(previousSelectedValue)
-      parentNode.descendants().forEach(function (descendantElement) {
-        if (descendantElement.group() === "nodes") {
-          var descendantEntity = descendantElement.data();
-          var gcWidget = widgetsMap.get(descendantEntity.name);
-          console.log(gcWidget)
-          if (gcWidget) {
-            setSelectedValues(undefined);
-            setSelectedOption(undefined);
-            setIsDisabled(true);
-          }
-        }
-      },);
       for (let i = currentIndex + 1; i < selectoptions.length; i++) {
         options = [{
-          label:"All",
-          selected:true,
-          value:"all"
+          label: "All",
+          selected: true,
+          value: "all"
         }]
         if (disableNext || updatedValues[selectoptions[i].name] === "all") {
-          updatedValues[selectoptions[i].name] = options;
+          updatedValues[selectoptions[i].name] = "All";
           updatedDisabled[selectoptions[i].name] = true;
           disableNext = true;
         } else {
@@ -312,6 +296,11 @@ const Dashboard: React.FC = () => {
         }
       }
     } else {
+      options = [{
+        label: parentEntityValue,
+        selected: true,
+        value: parentEntityValue
+      }]
       for (let i = currentIndex + 1; i < selectoptions.length; i++) {
         if (updatedValues[selectoptions[i].name] === 'all') {
           updatedValues[selectoptions[i].name] = options;
@@ -373,9 +362,6 @@ const Dashboard: React.FC = () => {
       }
       descendantValuesMap.current.set(childEntityName, values)
     }
-    setSelectedValues(updatedValues);
-    // setSelectedOption(selectedValues[parentEntityName])
-    setDisabledPanels(updatedDisabled);
 
   };
   const extractRecursively = (
@@ -412,18 +398,25 @@ const Dashboard: React.FC = () => {
     }
     return snapShotObject;
   };
+  const handleReset = () => {
+    const resetValues:any = {};
+    Object.keys(selectedValues).forEach((panel) => {
+      resetValues[panel] = 'All';
+    });
+    setSelectedValues(resetValues);
+    setJurisdiction(undefined)
+    setSelectedOption(undefined)
+  };
   const selectWidget = () => {
     let obcmEntity: any;
-    let arras: any = [];
+    let arras:any = [];
     obcmGraphNodes.forEach((currentNode: any) => {
       obcmEntity = currentNode.data();
       arras.push(obcmEntity);
     });
     return arras.map((node: any, index: any) => {
       const selectOption = createEntitySelectorPanel(selectedValues[node.name], node);
-      console.log(selectedValues)
-      console.log(selectedOption)
-
+      console.log(selectedValues[node.name])
       return (
         <>
           <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
@@ -433,13 +426,11 @@ const Dashboard: React.FC = () => {
                 key={node.value}
                 style={{ width: "180px", marginTop: '3px', marginLeft: '0.5rem' }}
                 defaultValue={selectOption[0]?.label}
-                // value={selectedValues[node.name]}
+                value={selectedValues[node.name]}
                 onChange={(e) => {
                   populateChildWidget(e, node.name, arras, index);
-                  // createEntitySelectorPanel(e, node);
+
                 }}
-                // onSelect={selectedOption === undefined ? "All" : selectedOption}
-              // disabled={isDisabled}
                 disabled={index > 0 && disabledPanels[arras[index - 1].name]}
               >
                 {selectOption?.map((elss: any) => {
@@ -449,81 +440,79 @@ const Dashboard: React.FC = () => {
                     </>
                   );
                 })}
+
               </Select>
             </div>
           </div>
         </>
       );
     });
-
   };
   return (<>
     <div className='widget-wrapper'  >
-      <div className='select-widget' >{selectWidget()}  
-      <div className="button-wrapper">
-        <Space>
-          <Button type="primary" size="large" onClick={() => { setJurisdiction(selectedOption) }}>
-            Apply Filters
-          </Button>
-          <Button type="link" size="large" onClick={() => {setJurisdiction(undefined); setSelectedOption(undefined) ;setReset(true)   
-          }}>
-            Reset
-          </Button>
-        </Space>
-      </div>
-      </div>
-     
-      <div ref={targetRef}  className="button-refresh">     
-            <Button type="primary" onClick={() => {toPDF() }} icon={<DownloadOutlined />} />
-            <Button type="primary"style={{marginLeft:'3px'}} onClick={() => { getAllReportOut() }} icon={<RedoOutlined />} />       
+      <div className='select-widget' >{selectWidget()}
+        <div className="button-wrapper">
+          <Space>
+            <Button type="primary" size="large" onClick={() => { setJurisdiction(selectedOption) }}>
+              Apply Filters
+            </Button>
+            <Button type="link" size="large" onClick={() => {
+              handleReset()
+            }}>
+              Reset
+            </Button>
+          </Space>
         </div>
-     
-        
+      </div>
+
+      <div ref={targetRef} className="button-refresh">
+        <Button type="primary" onClick={() => { toPDF() }} icon={<DownloadOutlined />} />
+        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => {  handleReset() }} icon={<RedoOutlined />} />
+      </div>
     </div>
     <Divider />
     <div
-        // ref={targetRef}
-        className="main-dashBoard-wrapper"
-      >    
-       
-        {loading ? (
-          <>
-            <Spin tip="Loading..." />
-          </>
-        ) : (
-          <>
-            <div className="chart-container">
-              {getAllReport?.map((report: any, index) => {
-                return (
-                  <>
-                    {Object.keys(report.visualizations).length === 0 ? (
-                      <></>
-                    ) : (
-                      <>
-                        <Wrapper
-                          key={index}
-                          name={report.name}
-                          label={report.label}
-                          jurisdiction={jurisdiction}
-                          noOfRows={
-                            report.visualizations?.rows?.length
-                              ? report.visualizations?.rows
-                              : []
-                          }
-                          outFields={report.visualizations}
-                        />
-                      </>
-                    )}
-                  </>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
+      // ref={targetRef}
+      className="main-dashBoard-wrapper"
+    >
+      {loading ? (
+        <>
+          <Spin tip="Loading..." />
+        </>
+      ) : (
+        <>
+          <div className="chart-container">
+            {getAllReport?.map((report: any, index) => {
+              return (
+                <>
+                  {Object.keys(report.visualizations).length === 0 ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Wrapper
+                        key={index}
+                        name={report.name}
+                        label={report.label}
+                        jurisdiction={jurisdiction}
+                        noOfRows={
+                          report.visualizations?.rows?.length
+                            ? report.visualizations?.rows
+                            : []
+                        }
+                        outFields={report.visualizations}
+                      />
+                    </>
+                  )}
+                </>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
   </>
   )
-    
+
 };
 
 export default Dashboard;
