@@ -12,6 +12,7 @@ import ReveloBarGraph from "./ReveloBarGraph/ReveloBarGraph";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { useAppSelector } from "../../../Redux/store/store";
+import ReveloTable from "./ReveloTable/ReveloTable";
 type Props = {
   name: string;
   label: string;
@@ -36,6 +37,7 @@ const Wrapper = (props: Props) => {
   };
 
   const getReportPutOut = async () => {
+    console.log(props.outFields)
     const serverUrl = window.__rDashboard__.serverUrl;
     setLoading(true);
     const payload: any[] = [];
@@ -57,12 +59,12 @@ const Wrapper = (props: Props) => {
     let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {
-      const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_${props.name}/_search`, {
+      const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_${props.name.toLocaleLowerCase()}/_search`, {
         size: 1000,
         "query": {
           "dis_max": {
             "queries": [
-              { "match": { jurisdictionType: getJtypeandJname()[1], } },
+              // { "match": { jurisdictionType: getJtypeandJname()[1], } },
               { "match": { jurisdictionName: getJtypeandJname()[0] } }
             ]
           }
@@ -125,11 +127,11 @@ const Wrapper = (props: Props) => {
 
                     <Button size="small" icon={<FullscreenOutlined />} />
                   </Link>
-                  <Button
+                  {/* <Button
                     size="small"
                     icon={<DownloadOutlined />}
                     onClick={() => { }}
-                  />
+                  /> */}
                   <Button
                     size="small"
                     onClick={() => {
@@ -140,7 +142,6 @@ const Wrapper = (props: Props) => {
                 </Space>
               </div>
             </div>
-            {/* {console.log(reportOutPuts)} */}
             {reportOutPuts.length > 0 ? (
               <>
                 <div className="graph-class">
@@ -154,7 +155,6 @@ const Wrapper = (props: Props) => {
                           style={rowStyle}
                         >
                           {rows.columns.map((col: any) => {
-                            // console.log(col)
                             return (
                               <>
                                 {Object.keys(props.outFields.outFields).map(
@@ -243,6 +243,13 @@ const Wrapper = (props: Props) => {
                         xAxis={props.outFields.widgetInfo.xAxis.labelFieldName}
                         yAxis={props.outFields.widgetInfo.yAxis.labelFieldName}
                       />
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  {props.outFields.type === "Table" ? (
+                    <>
+                      <ReveloTable data={reportOutPuts}/>
                     </>
                   ) : (
                     <></>

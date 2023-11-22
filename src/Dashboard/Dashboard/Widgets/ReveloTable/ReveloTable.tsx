@@ -1,43 +1,50 @@
-import {  Table, Typography } from "antd";
+import { Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
+type Props = {
+  data: any;
 
+}
 
-const ReveloTable = () => {
-
+const ReveloTable = (props: Props) => {
+  console.log(props.data)
   interface DataType {
-    id: string;
-    label: string;
-    value: number;
-    count: number;
+    vendorname: string;
+    amount: number | string;
+    numshiftskipped: number | string;
+    numshift: number | string;
   }
   const columns: ColumnsType<DataType> = [
     {
-      title: "Name",
-      dataIndex: "id",
-      key: "id",
+      title: "Vendor Name",
+      dataIndex: "vendorname",
+      key: "vendorname",
     },
     {
-      title: "Total Distance",
-      dataIndex: "value",
-      key: "value",
-      render: (_, record) => (
-        <>
-          <Typography>{`${(record.value / 1000).toFixed(2)}KM`}</Typography>
-        </>
-      ),
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+
     },
     {
-      title: "Stops",
-      dataIndex: "count",
-      key: "count",
+      title: "Total Shifts",
+      dataIndex: "numshift",
+      key: "numshift",
+
     },
+    {
+      title: "Shifts Skipped",
+      dataIndex: "numshiftskipped",
+      key: "numshiftskipped",
+
+    },
+
   ];
 
 
   return (
     <div>
-      <Table dataSource={[]} columns={columns} pagination={false} />
+      <Table dataSource={props.data} columns={columns} pagination={false} />
     </div>
   );
 };
