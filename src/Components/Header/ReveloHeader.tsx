@@ -15,7 +15,7 @@ type Props = {
   iconColor: string
 };
 const ReveloHeader = (props: Props) => {
-  const serverUrl = window.__rDashboard__.serverUrl;
+  const serverUrl = "http://103.248.60.18:7050/reveloadmin35/revelo";
 
   const [imageData, setImageData] = useState();
   const [loading, setLoading] = useState(true);
@@ -158,16 +158,16 @@ const ReveloHeader = (props: Props) => {
     };
   }, []);
 
-  // const doLogout = () => {
-  //   const logoutUrl = window.__hawkeye__.hawkeyeAdminLogoutUrl;
-  //   axios.post(logoutUrl, "").finally(() => {
-  //     axios.post(process.env.PUBLIC_URL + "/logout").finally(() => {
-
-  //       window.location.href = process.env.PUBLIC_URL;
-  //       window.location.reload()
-  //     });
-  //   });
-  // };
+  const doLogout = () => {
+    const logoutUrl = window.__rDashboard__.logoutUrl;
+    axios.post(logoutUrl, "").finally(() => {
+      axios.post(process.env.PUBLIC_URL + "/logout").finally(() => {
+        const newLocation:any = process.env.PUBLIC_URL;
+        window.location.href = newLocation;
+        window.location.reload()
+      });
+    });
+  };
 
   return (
     <>
@@ -223,10 +223,10 @@ const ReveloHeader = (props: Props) => {
         <About />
       </Modal>
       <Modal
-        centered
+       centered
         title={
           <Typography
-            style={{ fontWeight: "600", fontSize: "1.4rem", }}
+            style={{ fontWeight: "600", fontSize: "1.4rem",  }}
           >
             Logout
           </Typography>
@@ -241,7 +241,7 @@ const ReveloHeader = (props: Props) => {
         <Space
           style={{ margin: "10px" }}
           onClick={() => {
-
+            doLogout()
           }}
         >
           <Button type="primary">Logout</Button>

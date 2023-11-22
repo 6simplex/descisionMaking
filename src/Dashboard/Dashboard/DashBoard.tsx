@@ -5,7 +5,7 @@ import cytoscape, {
   EdgeDefinition,
   NodeDefinition,
 } from "cytoscape";
-import "./DashBoard.css";
+import "./Dashboard.css";
 import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { usePDF, Resolution } from "react-to-pdf";
@@ -13,15 +13,11 @@ import Wrapper from "./Widgets/Wrapper";
 
 const Dashboard: React.FC = () => {
   const [jurisdiction, setJurisdiction] = useState<any>();
-  const [reset, setReset] = useState(false);
-  const [array, setArray] = useState([]);
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
-  const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const [, forceUpdate] = useReducer((x: any) => x + 1, 0);
   const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions } =
     useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
@@ -471,10 +467,7 @@ const Dashboard: React.FC = () => {
       </div>
     </div>
     <Divider />
-    <div
-      // ref={targetRef}
-      className="main-dashBoard-wrapper"
-    >
+    <div className="main-dashBoard-wrapper">
       {loading ? (
         <>
           <Spin tip="Loading..." />

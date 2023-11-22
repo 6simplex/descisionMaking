@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "./Redux/store/store";
@@ -497,15 +497,7 @@ function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
-  // const doLogout = () => {
-  //   const logoutUrl = window.__hawkeye__.hawkeyeAdminLogoutUrl;
-  //   axios.post(logoutUrl, "").finally(() => {
-  //     axios.post(process.env.PUBLIC_URL + "/logout").finally(() => {
-  //       window.location.href = process.env.PUBLIC_URL;
-  //       window.location.reload()
-  //     });
-  //   });
-  // };
+
   return (
     <>
       {!errorState ? (
