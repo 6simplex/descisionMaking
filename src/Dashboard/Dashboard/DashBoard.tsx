@@ -5,7 +5,7 @@ import cytoscape, {
   EdgeDefinition,
   NodeDefinition,
 } from "cytoscape";
-import "./Dashboard.css";
+import "./DashBoard.css";
 import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { usePDF, Resolution } from "react-to-pdf";

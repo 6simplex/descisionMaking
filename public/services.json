@@ -1,6 +1,6 @@
 {
-  "serverUrl": "http://103.248.60.18:7050/reveloadmin35/revelo",
+  "serverUrl": "http://103.248.60.18:7053/reveloadmin35/revelo",
   "securityUrl": "http://103.248.60.18:8090",
-  "logoutUrl": "http://103.248.60.18:7050/reveloadmin35/revelo/access/logout",
-  "baseUrl": "http://103.248.60.18:7050/rdashboard"
+  "logoutUrl": "http://103.248.60.18:7053/reveloadmin35/revelo/access/logout",
+  "baseUrl": "http://103.248.60.18:7053/rdashboard"
 }
