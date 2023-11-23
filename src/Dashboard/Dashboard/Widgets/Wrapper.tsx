@@ -37,7 +37,6 @@ const Wrapper = (props: Props) => {
   };
 
   const getReportPutOut = async () => {
-    console.log(props.outFields)
     const serverUrl = window.__rDashboard__.serverUrl;
     setLoading(true);
     const payload: any[] = [];
@@ -48,7 +47,7 @@ const Wrapper = (props: Props) => {
           userInfo.userInfo.jurisdictions[0]?.type,
         ];
       } else if (props.jurisdiction) {
-        return (props.jurisdiction.name, props.jurisdiction.type);
+        return ([props.jurisdiction.name, props.jurisdiction.type]);
       } else {
         return [
           userInfo.userInfo.jurisdictions[0]?.name,
@@ -70,7 +69,6 @@ const Wrapper = (props: Props) => {
           }
         }
       })
-
       if (reportOutPut.data.error) {
         setLoading(false);
         return message.error("Something went Wrong");

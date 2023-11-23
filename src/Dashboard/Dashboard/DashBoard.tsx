@@ -1,5 +1,5 @@
 import { Button, Divider, Select, Space, Spin, Typography, message } from "antd";
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../Redux/store/store";
 import cytoscape, {
   EdgeDefinition,
@@ -16,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
+  const [allEntities, setAllEntities] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
   const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions } =
@@ -261,34 +262,53 @@ const Dashboard: React.FC = () => {
     widgetsMap.set(obcmEntity?.name, selectobject);
     return options;
   };
-  const populateChildWidget = (value: any, parentEntityName: any, selectoptions: any, index: any) => {
+  const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     setSelectedOption({
       name: value,
       type: parentEntityName,
     })
-
+    // setAllEntities(selectOptions)
+    // const valueToSend = value === 'all'
+    // ? selectedOption[selectOptions[selectOptions.findIndex((option:any) => option.name === parentEntityName) - 1]?.name]
+    // : value;
+    // setSelectedOption((prevSelectedOption:any) => ({
+    //   ...prevSelectedOption,
+    //   [parentEntityName]: {
+    //     name: valueToSend,
+    //     type: parentEntityName,
+    //   },
+    // }));
+    console.log("lastpanel" , selectOptions.length > 0 ? selectOptions[selectOptions.length - 1]?.name : 'fallbackValue')
     let options: any = [];
     let parentNode = obCMCYGraph.nodes("[id='" + parentEntityName + "']");
     let parentEntityValue = value;
     const updatedValues = { ...selectedValues, [parentEntityName]: parentEntityValue };
-    const currentIndex = selectoptions.findIndex((item: any) => item.value === parentEntityValue);
+    const currentIndex = selectOptions.findIndex((item: any) => item.value === parentEntityValue);
     const updatedDisabled: any = { ...disabledPanels };
     setSelectedValues(updatedValues);
     setDisabledPanels(updatedDisabled);
     let disableNext = false;
     if (parentEntityValue === "all") {
-      for (let i = currentIndex + 1; i < selectoptions.length; i++) {
+      // const lastIndex = selectOptions.findIndex((option:any) => option.name === parentEntityName);
+      // if (lastIndex > 0) {
+      //   const lastPanel = selectOptions[lastIndex - 1].name;
+      //   setSelectedOption((prevSelectedOption:any) => ({
+      //     ...prevSelectedOption,
+      //     [parentEntityName]: prevSelectedOption[lastPanel],
+      //   }));
+      // }
+      for (let i = currentIndex + 1; i < selectOptions.length; i++) {
         options = [{
           label: "All",
           selected: true,
           value: "all"
         }]
-        if (disableNext || updatedValues[selectoptions[i].name] === "all") {
-          updatedValues[selectoptions[i].name] = "All";
-          updatedDisabled[selectoptions[i].name] = true;
+        if (disableNext || updatedValues[selectOptions[i].name] === "all") {
+          updatedValues[selectOptions[i].name] = "All";
+          updatedDisabled[selectOptions[i].name] = true;
           disableNext = true;
         } else {
-          updatedDisabled[selectoptions[i].name] = false;
+          updatedDisabled[selectOptions[i].name] = false;
         }
       }
     } else {
@@ -297,12 +317,12 @@ const Dashboard: React.FC = () => {
         selected: true,
         value: parentEntityValue
       }]
-      for (let i = currentIndex + 1; i < selectoptions.length; i++) {
-        if (updatedValues[selectoptions[i].name] === 'all') {
-          updatedValues[selectoptions[i].name] = options;
-          updatedDisabled[selectoptions[i].name] = true;
+      for (let i = currentIndex + 1; i < selectOptions.length; i++) {
+        if (updatedValues[selectOptions[i].name] === 'all') {
+          updatedValues[selectOptions[i].name] = options;
+          updatedDisabled[selectOptions[i].name] = true;
         } else {
-          updatedDisabled[selectoptions[i].name] = false;
+          updatedDisabled[selectOptions[i].name] = false;
         }
       }
       let childEntity, childNode;
@@ -505,7 +525,6 @@ const Dashboard: React.FC = () => {
     </div>
   </>
   )
-
 };
 
 export default Dashboard;
