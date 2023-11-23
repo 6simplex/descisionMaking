@@ -445,7 +445,7 @@ const Dashboard: React.FC = () => {
       );
     });
   };
-  
+  console.log(jurisdiction)
   return (<>
     <div className='widget-wrapper'  >
       <div className='select-widget' >{selectWidget()}

@@ -56,7 +56,7 @@ const Wrapper = (props: Props) => {
         ];
       }
     };
-    console.log(getJtypeandJname())
+    
     let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {

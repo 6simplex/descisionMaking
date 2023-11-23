@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 
 
 const ExplorerContent = () => {
+  const [date, setDate] = useState<any>()
   const [unitGeojson, setUnitGeojson] = useState()
   const [loading, setLoading] = useState(true)
   const { toPDF, targetRef } = usePDF({
@@ -429,10 +430,25 @@ const ExplorerContent = () => {
     });
   };
   ///end JS
-  
+  const getJtypeandJname = (): string[] => {
+    if (jurisdiction === "All") {
+      return [
+        userInfo.userInfo.jurisdictions[0]?.name,
+        userInfo.userInfo.jurisdictions[0]?.type,
+      ];
+    } else if (jurisdiction) {
+      return ([jurisdiction.name, jurisdiction.type]);
+    } else {
+      return [
+        userInfo.userInfo.jurisdictions[0]?.name,
+        userInfo.userInfo.jurisdictions[0]?.type,
+      ];
+    }
+  };
+
   const getlistdata = async () => {
     setLoading(true)
-    await axios.get(`${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/unit/data?format=geojson&source=remote&targetArtifact=original`).then(((res) => {
+    await axios.get(`${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/unit/query?${getJtypeandJname()[1]}=${getJtypeandJname()[0]}`).then(((res) => {
       if (res.status === 200) {
         setUnitGeojson(res.data)
         setLoading(false)
@@ -446,18 +462,20 @@ const ExplorerContent = () => {
   }
   useEffect(() => {
     getlistdata()
-    
-  }, [])
+
+  }, [jurisdiction])
   return (<>
     <div className='widget-wrapper'  >
       <div className='select-widget' >{selectWidget()}
         <div className="button-wrapper">
           <Space>
-            <Button type="primary" size="large" onClick={()=>{setJurisdiction(selectedOption)}}>
+            <Button type="primary" size="large" onClick={() => { setJurisdiction(selectedOption) }}>
               Apply Filters
             </Button>
             <Button type="link" size="large" onClick={() => {
-              handleReset()
+              handleReset();
+              // setDate("")
+
             }}>
               Reset
             </Button>
@@ -466,7 +484,10 @@ const ExplorerContent = () => {
       </div>
       <div ref={targetRef} className="button-refresh">
         <Button type="primary" onClick={() => { toPDF() }} icon={<DownloadOutlined />} />
-        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => { handleReset() }} icon={<RedoOutlined />} />
+        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => {
+          handleReset();
+          // setDate("")
+        }} icon={<RedoOutlined />} />
       </div>
     </div>
     <div
@@ -488,11 +509,15 @@ const ExplorerContent = () => {
             defaultValue={dayjs()}
             showToday
             onChange={(date, dateString) => {
-              console.log(new Date(dateString).toISOString().split('T')[0]);
+              setDate(new Date(dateString).toISOString().split('T')[0]);
             }}
           />
           <div className="chart-container1">
-            <SidePanel unit={unitGeojson} />
+            <SidePanel
+              unit={unitGeojson}
+              jurisdiction={getJtypeandJname()}
+              date={date}
+            />
           </div>
         </>
       )}

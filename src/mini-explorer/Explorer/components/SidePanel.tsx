@@ -12,10 +12,13 @@ import VectorLayer from 'ol/layer/Vector';
 const center = fromLonLat([79.088860, 21.146633]);
 type Props = {
     unit: any;
+    jurisdiction: string[];
+    date: any;
 }
 export const SidePanel = (props: Props) => {
     const { projectConceptModel } = useAppSelector(state => state.reveloUserInfo)
     const [indexes, setIndexes] = useState("")
+    const [vendorid, setVendorId] = useState("")
     const [blocks, setBlocks] = useState([])
     const [bill, setBill] = useState([])
     const [loading, setLoading] = useState(true)
@@ -37,7 +40,7 @@ export const SidePanel = (props: Props) => {
     }
     const getBilling = async (id: any) => {
         setL1(true)
-        await axios.get(`${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/billing/query?vendorid=${id}`).then(((res) => {
+        await axios.get(`${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/billing/query?vendorid=${id}&shiftdate=${props.date}`).then(((res) => {
             if (res.status === 200) {
                 console.log(res.data)
                 setBill(res.data.features)
@@ -51,6 +54,11 @@ export const SidePanel = (props: Props) => {
         }))
     }
 
+    useEffect(() => {
+        if (vendorid) {
+            getBilling(vendorid)
+        }
+    }, [props.date])
     return (<>
 
         <div style={{ display: "flex", flexDirection: "row", placeContent: "flex-start", placeItems: "flex-start", minHeight: "50%" }}>
@@ -70,6 +78,7 @@ export const SidePanel = (props: Props) => {
                             setIndexes(item.properties.unitname);
                             getBlocks(item.properties.unitid)
                             getBilling(item.properties.vendorid)
+                            setVendorId(item.properties.vendorid)
                             unitVecRef.current.context.map.getLayers().getArray().forEach((layer: any) => {
                                 if (layer.get("name") === "unit") {
                                     layer.getSource().forEachFeature((f: any) => {
@@ -115,7 +124,7 @@ export const SidePanel = (props: Props) => {
             </> : <>
                 {bill.map((bill: any) => {
                     return (<>
-                        <div style={{ height: "100%", display: "grid", gridTemplateColumns: "25% 25% 25% 25%", marginBottom: "2px", gap: "2px" }}>
+                        <div style={{ height: "100%", display: "grid", gridTemplateColumns: "20% 20% 20% 20% 20%", marginBottom: "2px", gap: "2px" }}>
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                                 <Typography style={{ fontWeight: "bold" }}>Vendor Name</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.vendorname}</Typography>
@@ -127,6 +136,10 @@ export const SidePanel = (props: Props) => {
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                                 <Typography style={{ fontWeight: "bold" }}>Total Shifts</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.numshift}</Typography>
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
+                                <Typography style={{ fontWeight: "bold" }}>Shifts Cleaned</Typography>
+                                <Typography style={{ fontSize: "2rem" }}>{bill.properties.numshiftcleaned}</Typography>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                                 <Typography style={{ fontWeight: "bold" }}>Shifts Skipped</Typography>
@@ -181,6 +194,8 @@ export const SidePanel = (props: Props) => {
                                         setIndexes(e.target.get("unitname"));
                                         getBlocks(e.target.get("unitid"))
                                         getBilling(e.target.get("vendorid"))
+                                        setVendorId(e.target.get("vendorid"))
+
                                         unitVecRef.current.context.map
                                             .getView()
                                             .fit(e.target.getGeometry().getExtent(), {
