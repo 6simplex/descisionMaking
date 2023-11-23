@@ -263,8 +263,9 @@ const Dashboard: React.FC = () => {
   };
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
+    console.log(value , previousSelectedValue)
     setSelectedOption({
-      name: previousSelectedValue !== "All" ? previousSelectedValue : value,
+      name: value === "all" ? previousSelectedValue : value,
       type: parentEntityName,
     })
     let options: any = [];
@@ -412,6 +413,7 @@ const Dashboard: React.FC = () => {
     });
     return arras.map((node: any, index: any) => {
       const selectOption = createEntitySelectorPanel(selectedValues[node.name], node);
+      console.log(selectedOption)
       return (
         <>
           <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>

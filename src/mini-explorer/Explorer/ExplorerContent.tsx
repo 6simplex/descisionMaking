@@ -54,9 +54,6 @@ const ExplorerContent = () => {
     });
     return parentChildCyGraph;
   };
-
-
-
   const extractAndAddChildren = (node: any, graph: any) => {
     let outgoers = node.outgoers();
     let elementsToAdd = [];
@@ -211,8 +208,6 @@ const ExplorerContent = () => {
         },
       ];
 
-
-
     } else if (descendantsMap.has(obcmEntity?.name) === true) {
       const retrievedValue = descendantValuesMap.current?.get(obcmEntity?.name);
       if (retrievedValue !== undefined) {
@@ -254,7 +249,7 @@ const ExplorerContent = () => {
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
-      name: previousSelectedValue !== "All" ? previousSelectedValue : value,
+      name: value === "all" ? previousSelectedValue : value,
       type: parentEntityName,
     })
     let options: any = [];
@@ -434,7 +429,6 @@ const ExplorerContent = () => {
     });
   };
   ///end JS
-  console.log(jurisdiction)
   
   const getlistdata = async () => {
     setLoading(true)
@@ -452,13 +446,14 @@ const ExplorerContent = () => {
   }
   useEffect(() => {
     getlistdata()
+    
   }, [])
   return (<>
     <div className='widget-wrapper'  >
       <div className='select-widget' >{selectWidget()}
         <div className="button-wrapper">
           <Space>
-            <Button type="primary" size="large" onClick={() => { setJurisdiction(selectedOption) }}>
+            <Button type="primary" size="large" onClick={()=>{setJurisdiction(selectedOption)}}>
               Apply Filters
             </Button>
             <Button type="link" size="large" onClick={() => {
@@ -469,13 +464,10 @@ const ExplorerContent = () => {
           </Space>
         </div>
       </div>
-
       <div ref={targetRef} className="button-refresh">
         <Button type="primary" onClick={() => { toPDF() }} icon={<DownloadOutlined />} />
         <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => { handleReset() }} icon={<RedoOutlined />} />
       </div>
-
-
     </div>
     <div
       className="main-dashBoard-wrapper"
