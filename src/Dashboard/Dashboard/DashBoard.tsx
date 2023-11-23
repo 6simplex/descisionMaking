@@ -5,21 +5,40 @@ import cytoscape, {
   EdgeDefinition,
   NodeDefinition,
 } from "cytoscape";
-import "./Dashboard.css";
+import "./DashBoard.css";
 import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { usePDF, Resolution } from "react-to-pdf";
 import Wrapper from "./Widgets/Wrapper";
 
 const Dashboard: React.FC = () => {
+  const [getAllReport, setGetAllReport] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { toPDF, targetRef } = usePDF({
+    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`, resolution: Resolution.NORMAL, page: { orientation: "landscape", },
+    method: "open"
+  });
+  const getAllReportOut = async () => {
+    setLoading(true);
+    const reports = await fetchData(
+      `${window.__rDashboard__.serverUrl}/surveys/${project.name}/reports`
+    );
+    if (reports.error) {
+      return message.error("Something went Wrong");
+    }
+    setGetAllReport(reports);
+    setLoading(false);
+  };
+  useEffect(() => {
+    getAllReportOut();
+  }, []);
   const [jurisdiction, setJurisdiction] = useState<any>();
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
-  const [allEntities, setAllEntities] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions } =
+  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, project } =
     useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
@@ -45,29 +64,9 @@ const Dashboard: React.FC = () => {
     });
     return parentChildCyGraph;
   };
-  const { toPDF, targetRef } = usePDF({
-    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`, resolution: Resolution.NORMAL, page: { orientation: "landscape", },
-    method: "open"
-  });
-  const { project } = useAppSelector(
-    (state) => state.reveloUserInfo
-  );
-  const [getAllReport, setGetAllReport] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const getAllReportOut = async () => {
-    setLoading(true);
-    const reports = await fetchData(
-      `${window.__rDashboard__.serverUrl}/surveys/${project.name}/reports`
-    );
-    if (reports.error) {
-      return message.error("Something went Wrong");
-    }
-    setGetAllReport(reports);
-    setLoading(false);
-  };
-  useEffect(() => {
-    getAllReportOut();
-  }, []);
+
+
+
   const extractAndAddChildren = (node: any, graph: any) => {
     let outgoers = node.outgoers();
     let elementsToAdd = [];
@@ -265,7 +264,7 @@ const Dashboard: React.FC = () => {
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
-      name: previousSelectedValue !== "All"? previousSelectedValue: value,
+      name: previousSelectedValue !== "All" ? previousSelectedValue : value,
       type: parentEntityName,
     })
     let options: any = [];
@@ -396,7 +395,7 @@ const Dashboard: React.FC = () => {
     return snapShotObject;
   };
   const handleReset = () => {
-    const resetValues:any = {};
+    const resetValues: any = {};
     Object.keys(selectedValues).forEach((panel) => {
       resetValues[panel] = 'All';
     });
@@ -406,7 +405,7 @@ const Dashboard: React.FC = () => {
   };
   const selectWidget = () => {
     let obcmEntity: any;
-    let arras:any = [];
+    let arras: any = [];
     obcmGraphNodes.forEach((currentNode: any) => {
       obcmEntity = currentNode.data();
       arras.push(obcmEntity);
@@ -444,6 +443,7 @@ const Dashboard: React.FC = () => {
       );
     });
   };
+  
   return (<>
     <div className='widget-wrapper'  >
       <div className='select-widget' >{selectWidget()}
@@ -463,7 +463,7 @@ const Dashboard: React.FC = () => {
 
       <div ref={targetRef} className="button-refresh">
         <Button type="primary" onClick={() => { toPDF() }} icon={<DownloadOutlined />} />
-        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => {  handleReset() }} icon={<RedoOutlined />} />
+        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => { handleReset() }} icon={<RedoOutlined />} />
       </div>
     </div>
     <Divider />

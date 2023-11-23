@@ -22,6 +22,7 @@ type Props = {
 };
 
 const Wrapper = (props: Props) => {
+
   const { projectName } = useParams();
   const { project, userInfo } = useAppSelector((state) => state.reveloUserInfo);
   const [reportOutPuts, setReportOutPuts] = useState<any[]>([]);
@@ -55,6 +56,7 @@ const Wrapper = (props: Props) => {
         ];
       }
     };
+    console.log(getJtypeandJname())
     let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {
@@ -63,7 +65,7 @@ const Wrapper = (props: Props) => {
         "query": {
           "dis_max": {
             "queries": [
-              // { "match": { jurisdictionType: getJtypeandJname()[1], } },
+
               { "match": { jurisdictionName: getJtypeandJname()[0] } }
             ]
           }
@@ -116,8 +118,9 @@ const Wrapper = (props: Props) => {
                 <Space>
                   <Link
                     to={
-                      `/project/${projectName}/stats/${props.name}`
-
+                      props.outFields.type === "Table" ?
+                        `/project/${projectName}/explore`
+                        : `/project/${projectName}/stats/${props.name}`
                     }
                     target="_blank"
                     state={{ allProps: props }}
@@ -247,7 +250,7 @@ const Wrapper = (props: Props) => {
                   )}
                   {props.outFields.type === "Table" ? (
                     <>
-                      <ReveloTable data={reportOutPuts}/>
+                      <ReveloTable data={reportOutPuts} />
                     </>
                   ) : (
                     <></>

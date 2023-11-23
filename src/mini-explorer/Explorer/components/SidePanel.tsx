@@ -21,6 +21,7 @@ export const SidePanel = (props: Props) => {
     const [loading, setLoading] = useState(true)
     const [l1, setL1] = useState(false)
     const unitVecRef = useRef<any>(null)
+    const listRef = useRef<any>(null)
     const getBlocks = async (id: any) => {
         await axios.get(`${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/blocks/query?unitid=${id}`).then(((res) => {
             if (res.status === 200) {
@@ -51,16 +52,21 @@ export const SidePanel = (props: Props) => {
     }
 
     return (<>
+
         <div style={{ display: "flex", flexDirection: "row", placeContent: "flex-start", placeItems: "flex-start", minHeight: "50%" }}>
             <List
-                style={{ width: "50%", height: "100%", overflowY: "auto", }}
+
+                style={{ width: "100%", height: "100%", overflowY: "auto", marginRight: "2px" }}
                 header={<div style={{ fontSize: "100%", fontWeight: "bolder" }}>Unit ({props.unit.features.length})</div>}
                 bordered
                 dataSource={props.unit.features}
                 renderItem={(item: any, index) => (
 
-                    <List.Item style={{ display: "flex", flexDirection: "row", placeItems: "center", placeContent: "flex-start" }}>
-                        <Checkbox style={{ marginRight: "20%" }} checked={indexes === item.properties.unitname} value={indexes} onChange={(e) => {
+                    <List.Item
+                        ref={listRef}
+                        id={item.properties.unitname}
+                        style={{ display: "flex", flexDirection: "row", placeItems: "center", placeContent: "flex-start" }}>
+                        <Checkbox style={{ marginRight: "2%" }} checked={indexes === item.properties.unitname} value={indexes} onChange={(e) => {
                             setIndexes(item.properties.unitname);
                             getBlocks(item.properties.unitid)
                             getBilling(item.properties.vendorid)
@@ -86,7 +92,7 @@ export const SidePanel = (props: Props) => {
                 )}
             />
             <List
-                style={{ width: "50%", overflowY: "auto", height: "100%" }}
+                style={{ width: "100%", overflowY: "auto", height: "100%" }}
                 header={<div style={{ fontSize: "100%", fontWeight: "bolder", }}>Blocks ({blocks.length})</div>}
                 bordered
                 dataSource={blocks}
@@ -103,26 +109,26 @@ export const SidePanel = (props: Props) => {
         </div >
         <div style={{ minHeight: "50%", display: "grid", gridTemplateRows: "30% 70%" }}>
             {bill.length === 0 ? <>
-                <div style={{ height: "100%", display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", paddingBottom: "2px", border: "1px solid #d9d9d9" }}>
+                <div style={{ height: "100%", display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", marginBottom: "2px", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                     No data to display
                 </div>
             </> : <>
                 {bill.map((bill: any) => {
                     return (<>
-                        <div style={{ height: "100%", display: "grid", gridTemplateColumns: "25% 25% 25% 25%", paddingBottom: "2px" }}>
-                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9" }}>
+                        <div style={{ height: "100%", display: "grid", gridTemplateColumns: "25% 25% 25% 25%", marginBottom: "2px", gap: "2px" }}>
+                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                                 <Typography style={{ fontWeight: "bold" }}>Vendor Name</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.vendorname}</Typography>
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9" }}>
+                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                                 <Typography style={{ fontWeight: "bold" }}>Amount</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.amount}</Typography>
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9" }}>
+                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                                 <Typography style={{ fontWeight: "bold" }}>Total Shifts</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.numshift}</Typography>
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9" }}>
+                            <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                                 <Typography style={{ fontWeight: "bold" }}>Shifts Skipped</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.numshiftskipped}</Typography>
                             </div>
@@ -133,7 +139,7 @@ export const SidePanel = (props: Props) => {
             </>}
 
 
-            <div style={{ height: "100%", border: "1px solid #d9d9d9" }}>
+            <div style={{ height: "100%", border: "1px solid #d9d9d9", width: "100%", borderRadius: "8px" }}>
                 <RMap width={"100%"} height={"inherit"} initial={{ center: center, zoom: 11 }}>
                     <ROSM />
                     <RLayerVector
@@ -160,13 +166,30 @@ export const SidePanel = (props: Props) => {
                                         text: new Text({
                                             font: "15px sens-sarif",
                                             text: f.properties.unitname,
-
+                                            textAlign: "center",
                                             fill: new Fill({
                                                 color: "white"
                                             })
                                         })
                                     }
-                                )} geometry={new MultiPolygon(f.geometry.coordinates)}>
+                                )} geometry={new MultiPolygon(f.geometry.coordinates)}
+                                    onClick={(e: any) => {
+                                        const listItemElement = document.getElementById(`${e.target.get("unitname")}`)
+                                        if (listItemElement) {
+                                            listItemElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }
+                                        setIndexes(e.target.get("unitname"));
+                                        getBlocks(e.target.get("unitid"))
+                                        getBilling(e.target.get("vendorid"))
+                                        unitVecRef.current.context.map
+                                            .getView()
+                                            .fit(e.target.getGeometry().getExtent(), {
+                                                duration: 2000,
+                                                padding: [200, 200, 200, 200],
+                                            });
+                                    }}
+
+                                >
 
                                 </RFeature>
                             </>)
