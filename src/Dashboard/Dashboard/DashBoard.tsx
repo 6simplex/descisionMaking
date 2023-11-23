@@ -263,22 +263,11 @@ const Dashboard: React.FC = () => {
     return options;
   };
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
+    const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
-      name: value,
+      name: previousSelectedValue !== "All"? previousSelectedValue: value,
       type: parentEntityName,
     })
-    // setAllEntities(selectOptions)
-    // const valueToSend = value === 'all'
-    // ? selectedOption[selectOptions[selectOptions.findIndex((option:any) => option.name === parentEntityName) - 1]?.name]
-    // : value;
-    // setSelectedOption((prevSelectedOption:any) => ({
-    //   ...prevSelectedOption,
-    //   [parentEntityName]: {
-    //     name: valueToSend,
-    //     type: parentEntityName,
-    //   },
-    // }));
-    console.log("lastpanel" , selectOptions.length > 0 ? selectOptions[selectOptions.length - 1]?.name : 'fallbackValue')
     let options: any = [];
     let parentNode = obCMCYGraph.nodes("[id='" + parentEntityName + "']");
     let parentEntityValue = value;
@@ -289,14 +278,6 @@ const Dashboard: React.FC = () => {
     setDisabledPanels(updatedDisabled);
     let disableNext = false;
     if (parentEntityValue === "all") {
-      // const lastIndex = selectOptions.findIndex((option:any) => option.name === parentEntityName);
-      // if (lastIndex > 0) {
-      //   const lastPanel = selectOptions[lastIndex - 1].name;
-      //   setSelectedOption((prevSelectedOption:any) => ({
-      //     ...prevSelectedOption,
-      //     [parentEntityName]: prevSelectedOption[lastPanel],
-      //   }));
-      // }
       for (let i = currentIndex + 1; i < selectOptions.length; i++) {
         options = [{
           label: "All",
@@ -432,7 +413,6 @@ const Dashboard: React.FC = () => {
     });
     return arras.map((node: any, index: any) => {
       const selectOption = createEntitySelectorPanel(selectedValues[node.name], node);
-      console.log(selectedValues[node.name])
       return (
         <>
           <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
