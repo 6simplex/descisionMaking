@@ -405,7 +405,7 @@ const ExplorerContent = () => {
             <div>
               <Select
                 key={node.value}
-                style={{ width: "180px", marginTop: '3px', marginLeft: '0.5rem' }}
+                style={{ minWidth: "160px", marginTop: '3px', marginLeft: '0.5rem' }}
                 defaultValue={selectOption[0]?.label}
                 value={selectedValues[node.name]}
                 onChange={(e) => {
@@ -466,13 +466,29 @@ const ExplorerContent = () => {
   }, [jurisdiction])
   return (<>
     <div className='widget-wrapper'  >
-      <div className='select-widget' >{selectWidget()}
+      <div className='select-widget' >
+        <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '15px' }}>
+          <Typography style={{ marginLeft:"5px" }}>Date</Typography>
+          <DatePicker
+            disabled={loading}
+            disabledDate={current => {
+              const currentDate = dayjs();
+              return current && current.isAfter(currentDate, 'day');
+            }}
+            defaultValue={dayjs()}
+            showToday
+            onChange={(date, dateString) => {
+              setDate(new Date(dateString).toISOString().split('T')[0]);
+            }}
+          />
+        </div>
+        {selectWidget()}
         <div className="button-wrapper">
           <Space>
-            <Button type="primary" size="large" onClick={() => { setJurisdiction(selectedOption) }}>
+            <Button type="primary" onClick={() => { setJurisdiction(selectedOption) }}>
               Apply Filters
             </Button>
-            <Button type="link" size="large" onClick={() => {
+            <Button type="link" onClick={() => {
               handleReset();
               // setDate("")
 
@@ -491,7 +507,7 @@ const ExplorerContent = () => {
       </div>
     </div>
     <div
-      className="main-dashBoard-wrapper"
+      className="main-dashBoard-wrapper1"
     >
 
       {loading ? (
@@ -500,18 +516,7 @@ const ExplorerContent = () => {
         </>
       ) : (
         <>
-          <DatePicker style={{ margin: "5px 10px" }}
-            disabled={loading}
-            disabledDate={current => {
-              const currentDate = dayjs();
-              return current && current.isAfter(currentDate, 'day');
-            }}
-            defaultValue={dayjs()}
-            showToday
-            onChange={(date, dateString) => {
-              setDate(new Date(dateString).toISOString().split('T')[0]);
-            }}
-          />
+
           <div className="chart-container1">
             <SidePanel
               unit={unitGeojson}

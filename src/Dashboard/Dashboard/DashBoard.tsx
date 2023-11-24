@@ -263,7 +263,7 @@ const Dashboard: React.FC = () => {
   };
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
-    console.log(value , previousSelectedValue)
+    console.log(value, previousSelectedValue)
     setSelectedOption({
       name: value === "all" ? previousSelectedValue : value,
       type: parentEntityName,
@@ -413,15 +413,14 @@ const Dashboard: React.FC = () => {
     });
     return arras.map((node: any, index: any) => {
       const selectOption = createEntitySelectorPanel(selectedValues[node.name], node);
-      console.log(selectedOption)
       return (
         <>
-          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
+          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '0px' }}>
             <Typography style={{ marginLeft: '0.7rem' }}>{node.label}</Typography>
             <div>
               <Select
                 key={node.value}
-                style={{ width: "180px", marginTop: '3px', marginLeft: '0.5rem' }}
+                style={{ width: "160px", marginTop: '3px', marginLeft: '0.5rem' }}
                 defaultValue={selectOption[0]?.label}
                 value={selectedValues[node.name]}
                 onChange={(e) => {
@@ -445,16 +444,16 @@ const Dashboard: React.FC = () => {
       );
     });
   };
-  console.log(jurisdiction)
+
   return (<>
     <div className='widget-wrapper'  >
       <div className='select-widget' >{selectWidget()}
         <div className="button-wrapper">
           <Space>
-            <Button type="primary" size="large" onClick={() => { setJurisdiction(selectedOption) }}>
+            <Button type="primary" onClick={() => { setJurisdiction(selectedOption) }}>
               Apply Filters
             </Button>
-            <Button type="link" size="large" onClick={() => {
+            <Button type="link" onClick={() => {
               handleReset()
             }}>
               Reset
@@ -468,7 +467,6 @@ const Dashboard: React.FC = () => {
         <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => { handleReset() }} icon={<RedoOutlined />} />
       </div>
     </div>
-    <Divider />
     <div className="main-dashBoard-wrapper">
       {loading ? (
         <>

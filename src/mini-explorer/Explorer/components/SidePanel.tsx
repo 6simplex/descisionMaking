@@ -16,6 +16,7 @@ type Props = {
     date: any;
 }
 export const SidePanel = (props: Props) => {
+    console.log(props.date)
     const { projectConceptModel } = useAppSelector(state => state.reveloUserInfo)
     const [indexes, setIndexes] = useState("")
     const [vendorid, setVendorId] = useState("")
@@ -116,7 +117,7 @@ export const SidePanel = (props: Props) => {
                 }}
             />
         </div >
-        <div style={{ minHeight: "50%", display: "grid", gridTemplateRows: "30% 70%" }}>
+        <div style={{ minHeight: "50%", display: "grid", gridTemplateRows: "20% 80%" }}>
             {bill.length === 0 ? <>
                 <div style={{ height: "100%", display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", marginBottom: "2px", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
                     No data to display
@@ -126,23 +127,23 @@ export const SidePanel = (props: Props) => {
                     return (<>
                         <div style={{ height: "100%", display: "grid", gridTemplateColumns: "20% 20% 20% 20% 20%", marginBottom: "2px", gap: "2px" }}>
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
-                                <Typography style={{ fontWeight: "bold" }}>Vendor Name</Typography>
+                                <Typography style={{  }}>Vendor Name</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.vendorname}</Typography>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
-                                <Typography style={{ fontWeight: "bold" }}>Amount</Typography>
-                                <Typography style={{ fontSize: "2rem" }}>{bill.properties.amount}</Typography>
+                                <Typography style={{  }}>Amount</Typography>
+                                <Typography style={{ fontSize: "2rem" }}>₹{bill.properties.amount}.00</Typography>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
-                                <Typography style={{ fontWeight: "bold" }}>Total Shifts</Typography>
+                                <Typography style={{  }}>Total Shifts</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.numshift}</Typography>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
-                                <Typography style={{ fontWeight: "bold" }}>Shifts Cleaned</Typography>
+                                <Typography style={{  }}>Shifts Cleaned</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.numshiftcleaned}</Typography>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center", height: "inherit", border: "1px solid #d9d9d9", borderRadius: "8px" }}>
-                                <Typography style={{ fontWeight: "bold" }}>Shifts Skipped</Typography>
+                                <Typography style={{  }}>Shifts Skipped</Typography>
                                 <Typography style={{ fontSize: "2rem" }}>{bill.properties.numshiftskipped}</Typography>
                             </div>
 

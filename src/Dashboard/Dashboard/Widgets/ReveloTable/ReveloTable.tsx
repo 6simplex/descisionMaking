@@ -7,7 +7,7 @@ type Props = {
 }
 
 const ReveloTable = (props: Props) => {
-  console.log(props.data)
+
   interface DataType {
     vendorname: string;
     amount: number | string;
@@ -19,12 +19,17 @@ const ReveloTable = (props: Props) => {
       title: "Vendor Name",
       dataIndex: "vendorname",
       key: "vendorname",
+      render: () => {
+        return <>Brics</>;
+      }
     },
     {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-
+      render: (_,record) => {
+        return <>₹{record.amount}.00</>;
+      }
     },
     {
       title: "Total Shifts",
