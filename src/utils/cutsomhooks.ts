@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-// import XLSX from "sheetjs-style";
-// import * as FileSaver from "file-saver";
+import cytoscape, { EdgeDefinition, NodeDefinition } from "cytoscape";
+
 export const fetchData = async (url: string) => {
   try {
     const response = await axios.get(url);
@@ -65,18 +65,7 @@ export function isWithin5Days(dateString: string) {
   // Compare the provided date against the date range
   return providedDate >= fiveDaysAgo && providedDate <= fiveDaysFromNow;
 }
-// export const exportExcelJson = (excelData: any, fileName: string) => {
-//   const fileType =
-//     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset-UTF-8";
-//   const exportToExcel = async () => {
-//     const ws = XLSX.utils.json_to_sheet(excelData);
-//     const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-//     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-//     const data = new Blob([excelBuffer], { type: fileType });
-//     FileSaver.saveAs(data, fileName);
-//   };
-//   exportToExcel();
-// };
+
 export function getCurrentDateDDMMYYYY(date1?: any): string {
   const currentDate = new Date();
 
@@ -163,4 +152,102 @@ export function dateConvertorISO(dateString: string): Date {
   }
 
   return new Date(year, month, day, hours, minutes);
+}
+export const buildCompoundCYGraph = (dataGraph: any) => {
+  const tempCyGraph = CyCMGraph(dataGraph);
+  const roots = tempCyGraph.elements().roots();
+  const parentChildCyGraph = cytoscape({});
+  let rootNode = null;
+  roots.forEach((root) => {
+    rootNode = root;
+    let elementsToAdd: NodeDefinition[] = [];
+    elementsToAdd = [
+      {
+        group: "nodes",
+        data: { parent: null, ...rootNode.data() },
+      },
+    ];
+    parentChildCyGraph.add(elementsToAdd);
+    extractAndAddChildren(rootNode, parentChildCyGraph);
+  });
+  return parentChildCyGraph;
+};
+const extractAndAddChildren = (node: any, graph: any) => {
+  let outgoers = node.outgoers();
+  let elementsToAdd = [];
+  for (let i = 0; i < outgoers.length; i++) {
+    let outgoer = outgoers[i];
+    let targetNode = outgoer.target();
+    if (targetNode) {
+      let targetNodeData = targetNode.data();
+      if (targetNodeData) {
+        let targetData = { parent: node.data().id, ...targetNodeData };
+        elementsToAdd.push({
+          group: "nodes",
+          data: targetData,
+        });
+
+        let edgeData = outgoer.data();
+        elementsToAdd.push({
+          group: "edges",
+          data: {
+            id: targetData.parent + "_" + targetNodeData.id,
+            source: targetData.parent,
+            target: targetNodeData.id,
+            fromId: edgeData.fromId,
+            toId: edgeData.toId,
+          },
+        });
+        if (elementsToAdd.length > 0) {
+          graph.add(elementsToAdd);
+        }
+        extractAndAddChildren(targetNode, graph);
+      }
+    }
+  }
+};
+const CyCMGraph = (graphData: any) => {
+  const cyNodes: NodeDefinition[] = [];
+  const cyEdges: EdgeDefinition[] = [];
+  const vertices = graphData.entities;
+  vertices.forEach((vertex: any) => {
+    const vertexName = vertex.shortName;
+    cyNodes.push({ data: { id: vertexName, ...vertex } });
+  });
+  const edges = graphData.relations;
+  edges.forEach((edge: any) => {
+    cyEdges.push({
+      data: {
+        id: edge.name,
+        source: edge.from,
+        target: edge.to,
+        ...edge,
+      },
+    });
+  });
+  const cy = cytoscape({
+    elements: {
+      nodes: cyNodes,
+      edges: cyEdges,
+    },
+  });
+  return cy;
+};
+export   function createEntitySequence(entities: any, relationships: any) {
+  let entitySequence: any = [];
+
+  relationships.forEach((relationship: any) => {
+      const fromEntity = entities.find((entity: any) => entity.shortName === relationship.from);
+      const toEntity = entities.find((entity: any) => entity.shortName === relationship.to);
+
+      if (!entitySequence.includes(fromEntity)) {
+          entitySequence.push(fromEntity);
+      }
+
+      if (!entitySequence.includes(toEntity)) {
+          entitySequence.push(toEntity);
+      }
+  });
+
+  return entitySequence;
 }

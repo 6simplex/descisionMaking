@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react"
-import { useAppSelector } from "../Redux/store/store"
+import React from 'react'
+import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import ReveloHeader from "../Components/Header/ReveloHeader"
 import { Layout, Space } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
-import Dashboard from "./Dashboard/DashBoard";
-
+import { useAppSelector } from '../../Redux/store/store';
+import ReveloHeader from '../../Components/Header/ReveloHeader';
+import ExplorerContent2 from './ExplorerContent2';
+import './ExplorerContent2.css'
 const layoutStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -16,12 +17,10 @@ const contentStyle: React.CSSProperties = {
     overflow: "hidden",
 
 };
-
-const RDashBoard = () => {
-    const [download, setDownLoad] = useState()
-    const targetRef = (data: any) => {
-        setDownLoad(data)
-    }
+type Props = {
+    reportName: string
+}
+const Explorer2 = (props: Props) => {
     const navigation = useNavigate()
     const { userInfo, } = useAppSelector(state => state.reveloUserInfo)
     useEffect(() => {
@@ -40,11 +39,11 @@ const RDashBoard = () => {
     };
     return (
         <>
-            <Space direction="vertical" style={{ width: '100%' }} size={[0, 48]} ref={download}>
-                <Layout style={layoutStyle} >
+            <Space direction="vertical" style={{ width: '100%' }} size={[0, 48]}>
+                <Layout style={layoutStyle}>
                     <Header style={headerStyle}><ReveloHeader userName={userInfo.userInfo.userName} orgName={userInfo.orgName} projectName={userInfo.userInfo.customerInfo.customerUXInfo.label} projectNameColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.textColor} iconColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.primaryDarkColor} /></Header>
                     <Content style={contentStyle}>
-                        <Dashboard targetRef={targetRef} />
+                        <ExplorerContent2 />
                     </Content>
                 </Layout>
             </Space>
@@ -52,4 +51,4 @@ const RDashBoard = () => {
     )
 }
 
-export default RDashBoard
+export default Explorer2

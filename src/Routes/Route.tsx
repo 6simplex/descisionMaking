@@ -1,8 +1,10 @@
 import { Suspense, lazy } from "react";
+
 const IndividualReportIndex = lazy(() => import("../Individual Dashboard/IndividualReportIndex"));
 const RDashBoard = lazy(() => import("../Dashboard/RDashBoard"));
 const App = lazy(() => import("../App"));
 const Explorer = lazy(() => import("../mini-explorer/MiniIndex"));
+const Explorer2 = lazy(() => import("../mini-explorer2/MiniIndex2"));
 
 
 
@@ -32,7 +34,7 @@ export const MainRoutes = () => {
 
       {
         label: "Explorer",
-        link: '/project/:projectName/explore',
+        link: '/project/:projectName/explore2',
         component: () => (
           <Suspense fallback={<><span>Loading...</span></>}>
             <Explorer />
@@ -46,6 +48,15 @@ export const MainRoutes = () => {
         component: () => (
           <Suspense fallback={<><span>Loading...</span></>}>
             <IndividualReportIndex />
+          </Suspense>
+        )
+      },
+      {
+        label: "Explorer2",
+        link: '/project/:projectName/explore',
+        component: () => (
+          <Suspense fallback={<><span>Loading...</span></>}>
+            <Explorer2 />
           </Suspense>
         )
       },

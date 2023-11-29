@@ -3,7 +3,9 @@ import { ResponsivePie } from "@nivo/pie"
 import { Typography } from "antd";
 type Props = {
   data: any;
-  valueFieldName: any
+  valueFieldName: any;
+  arcLinkLabels?: boolean;
+  bottom?: number
 }
 
 const ReveloPie = (props: Props) => {
@@ -51,7 +53,8 @@ const ReveloPie = (props: Props) => {
 
     <ResponsivePie
       data={createDataForPie()}
-      margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+      enableArcLinkLabels={props.arcLinkLabels === false ? false : true}
+      margin={{ top: 20, right: 10, bottom: props.bottom ? props.bottom : 80, left: 10 }}
       innerRadius={0.56}
       padAngle={0.7}
       cornerRadius={3}
@@ -92,34 +95,37 @@ const ReveloPie = (props: Props) => {
                 strokeWidth="2" ></rect></svg>
             <Typography style={{ fontSize: "11px", fontFamily: "sans-serif", fontWeight: "bold" }}>{`${e.datum.id}: ${e.datum.formattedValue} (${(e.datum.value / createDataForPie().reduce((total, item) => total + item.value, 0) * 100).toFixed(2)}%)`}</Typography>
           </div> </>)}
-      legends={[
-        {
-          anchor: 'bottom',
-          direction: 'row',
-          justify: false,
-          translateX: 0,
-          translateY: 56,
-          itemsSpacing: 0,
-          itemWidth: 95,
-          itemHeight: 18,
-          itemTextColor: '#999',
-          itemDirection: 'left-to-right',
-          itemOpacity: 1,
-          symbolSize: 10,
-          symbolShape: 'circle',
-          effects: [
+      legends={
+        props.arcLinkLabels === false ? [] :
+
+          [
             {
-              on: "hover",
-              style: {
-                itemTextColor: '#000'
-              },
+              anchor: 'bottom',
+              direction: 'row',
+              justify: false,
+              translateX: 0,
+              translateY: 56,
+              itemsSpacing: 0,
+              itemWidth: 95,
+              itemHeight: 18,
+              itemTextColor: '#999',
+              itemDirection: 'left-to-right',
+              itemOpacity: 1,
+              symbolSize: 10,
+              symbolShape: 'circle',
+              effects: [
+                {
+                  on: "hover",
+                  style: {
+                    itemTextColor: '#000'
+                  },
 
-            },
+                },
 
-          ],
+              ],
 
-        }
-      ]}
+            }
+          ]}
     />
   )
 }

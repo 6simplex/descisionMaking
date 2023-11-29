@@ -1,49 +1,40 @@
-import { Button, Divider, Select, Space, Spin, Typography, message } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { Button, DatePicker, Divider, Select, Space, Spin, Typography, message } from "antd";
+import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../Redux/store/store";
 import cytoscape, {
   EdgeDefinition,
   NodeDefinition,
 } from "cytoscape";
-import "./DashBoard.css";
+import "./ExplorerContent2.css";
 import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { usePDF, Resolution } from "react-to-pdf";
-import Wrapper from "./Widgets/Wrapper";
-import RDashBoard from "../RDashBoard";
-type Props = {
-  targetRef: any
-}
-const Dashboard = (props: Props) => {
-  const [getAllReport, setGetAllReport] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { toPDF, targetRef } = usePDF({
-    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`, resolution: Resolution.MEDIUM, page: { orientation: "l", format: "A3" },
-    method: "open",
+import { SidePanel2 } from "./components2/SidePanel2";
+import axios from "axios";
+import dayjs from "dayjs";
+import localeData from 'dayjs/plugin/localeData';
+import weekday from 'dayjs/plugin/weekday';
+import exportFromJSON from "export-from-json";
+dayjs.extend(weekday);
+dayjs.extend(localeData);
 
+const ExplorerContent2 = () => {
+  const [downloadjson, setDownloadJson] = useState<any>([])
+  const [date, setDate] = useState<any>()
+  const [unitGeojson, setUnitGeojson] = useState()
+  const [loading, setLoading] = useState(true)
+  const { toPDF, targetRef } = usePDF({
+    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`, resolution: Resolution.NORMAL, page: { orientation: "landscape", },
+    method: "open"
   });
-  props.targetRef(targetRef)
-  const getAllReportOut = async () => {
-    setLoading(true);
-    const reports = await fetchData(
-      `${window.__rDashboard__.serverUrl}/surveys/${project.name}/reports`
-    );
-    if (reports.error) {
-      return message.error("Something went Wrong");
-    }
-    setGetAllReport(reports);
-    setLoading(false);
-  };
-  useEffect(() => {
-    getAllReportOut();
-  }, []);
+  //start of JS
   const [jurisdiction, setJurisdiction] = useState<any>();
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, project } =
+  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, projectConceptModel } =
     useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
@@ -69,9 +60,6 @@ const Dashboard = (props: Props) => {
     });
     return parentChildCyGraph;
   };
-
-
-
   const extractAndAddChildren = (node: any, graph: any) => {
     let outgoers = node.outgoers();
     let elementsToAdd = [];
@@ -141,7 +129,9 @@ const Dashboard = (props: Props) => {
   const assignedEntityNode = obCMCYGraph.nodes(
     "[id='" + jurisdictionType + "']"
   );
+
   ancestorsMap.set(jurisdictionType, jurisdictionName);
+
   const getAncestors = (
     entityNode: any,
     hierarchyInfo: any,
@@ -226,8 +216,6 @@ const Dashboard = (props: Props) => {
         },
       ];
 
-
-
     } else if (descendantsMap.has(obcmEntity?.name) === true) {
       const retrievedValue = descendantValuesMap.current?.get(obcmEntity?.name);
       if (retrievedValue !== undefined) {
@@ -268,7 +256,6 @@ const Dashboard = (props: Props) => {
   };
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
-    console.log(value, previousSelectedValue)
     setSelectedOption({
       name: value === "all" ? previousSelectedValue : value,
       type: parentEntityName,
@@ -420,12 +407,12 @@ const Dashboard = (props: Props) => {
       const selectOption = createEntitySelectorPanel(selectedValues[node.name], node);
       return (
         <>
-          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '0px' }}>
+          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
             <Typography style={{ marginLeft: '0.7rem' }}>{node.label}</Typography>
             <div>
               <Select
                 key={node.value}
-                style={{ width: "160px", marginTop: '3px', marginLeft: '0.5rem' }}
+                style={{ minWidth: "160px", marginTop: '3px', marginLeft: '0.5rem' }}
                 defaultValue={selectOption[0]?.label}
                 value={selectedValues[node.name]}
                 onChange={(e) => {
@@ -449,70 +436,139 @@ const Dashboard = (props: Props) => {
       );
     });
   };
+  ///end JS
+  const getJtypeandJname = (): string[] => {
+    if (jurisdiction === "All") {
+      return [
+        userInfo.userInfo.jurisdictions[0]?.name,
+        userInfo.userInfo.jurisdictions[0]?.type,
+      ];
+    } else if (jurisdiction) {
+      return ([jurisdiction.name, jurisdiction.type]);
+    } else {
+      return [
+        userInfo.userInfo.jurisdictions[0]?.name,
+        userInfo.userInfo.jurisdictions[0]?.type,
+      ];
+    }
+  };
+  const getReports = async () => {
+    let payload: any = []
+    let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
+    let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
+    try {
+      const reportOutPut = await axios.post(`${protocol}://${domain}/nmc_explorer_data_generator/_search`, {
+        size: 1000,
 
-  return (< >
+      })
+      if (reportOutPut.data.error) {
+        setLoading(false);
+        return message.error("Something went Wrong");
+      }
+      reportOutPut.data.hits.hits.forEach((outPut: any) => {
+        payload.push(outPut._source)
+        setDownloadJson(payload)
+      });
+
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  const getlistdata = async () => {
+    setLoading(true)
+    await axios.get(`${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/unit/query?${getJtypeandJname()[1]}=${getJtypeandJname()[0]}`).then(((res) => {
+      if (res.status === 200) {
+        setUnitGeojson(res.data)
+        setLoading(false)
+      }
+
+    })).catch(((err) => {
+      console.log(err)
+      setLoading(false)
+
+    }))
+  }
+  useEffect(() => {
+    getlistdata()
+    getReports()
+
+  }, [jurisdiction])
+  return (<>
     <div className='widget-wrapper'  >
-      <div className='select-widget' >{selectWidget()}
+      <div className='select-widget' >
+        <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '15px' }}>
+          <Typography style={{ marginLeft: "5px" }}>Date</Typography>
+          <DatePicker
+
+            allowClear={false}
+            disabled={true}
+            disabledDate={current => {
+              const currentDate = dayjs();
+              return current && current.isAfter(currentDate, 'day');
+            }}
+            defaultValue={dayjs()}
+            showToday
+            onChange={(date, dateString) => {
+              setDate(new Date(dateString).toISOString().split('T')[0]);
+            }}
+          />
+        </div>
+        {selectWidget()}
         <div className="button-wrapper">
           <Space>
             <Button type="primary" onClick={() => { setJurisdiction(selectedOption) }}>
               Apply Filters
             </Button>
             <Button type="link" onClick={() => {
-              handleReset()
+              handleReset();
+              // setDate("")
+
             }}>
               Reset
             </Button>
           </Space>
         </div>
       </div>
-
-      <div className="button-refresh">
+      <div ref={targetRef} className="button-refresh">
         <Button type="primary" onClick={() => {
-          window.scrollTo(0, document.body.scrollHeight);
-          toPDF()
+          const data = downloadjson
+          const fileName = downloadjson[0].shiftdate
+          const exportType = exportFromJSON.types.xls
+          const fields ={shiftdate:"Shift Date",vendorname:"Vendor Name",ward:"Ward",zone:"Zone",city:"City",numshift:"No of shift",numshiftcleaned:"No of Shift Cleaned",numshiftskipped:"No of shift Skipped",numshiftDamaged: "No of Shift Damaged",amount:"amount"}
+            exportFromJSON({ data, fileName, fields: fields, exportType })
         }} icon={<DownloadOutlined />} />
-        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => { handleReset() }} icon={<RedoOutlined />} />
+        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => {
+          handleReset();
+          // setDate("")
+        }} icon={<RedoOutlined />} />
       </div>
     </div>
-    <div className="main-dashBoard-wrapper">
-      {loading ? (
+    <div
+      className="main-dashBoard-wrapper1"
+    >
+
+      {/* {loading ? (
         <>
-          <Spin tip="Loading..." />
+          <Spin tip="Loading..." style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center" }} />
         </>
       ) : (
-        <>
-          <div className="chart-container">
-            {getAllReport?.map((report: any, index) => {
-              return (
-                <>
-                  {Object.keys(report.visualizations).length === 0 ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Wrapper
-                        key={index}
-                        name={report.name}
-                        label={report.label}
-                        jurisdiction={jurisdiction}
-                        noOfRows={
-                          report.visualizations?.rows?.length
-                            ? report.visualizations?.rows
-                            : []
-                        }
-                        outFields={report.visualizations}
-                      />
-                    </>
-                  )}
-                </>
-              );
-            })}
-          </div>
-        </>
-      )}
+        <> */}
+
+      <div className="chart-container1">
+        <SidePanel2
+          loading={loading}
+          unit={unitGeojson}
+          jurisdiction={getJtypeandJname()}
+          date={date}
+        />
+      </div>
+      {/* </>
+      )} */}
     </div>
   </>
   )
-};
 
-export default Dashboard;
+
+}
+
+export default ExplorerContent2

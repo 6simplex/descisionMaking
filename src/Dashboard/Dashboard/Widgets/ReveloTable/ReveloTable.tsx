@@ -20,7 +20,7 @@ const ReveloTable = (props: Props) => {
       dataIndex: "vendorname",
       key: "vendorname",
       render: () => {
-        return <>Brics</>;
+        return <>Brisk</>;
       }
     },
     {
