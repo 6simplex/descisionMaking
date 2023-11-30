@@ -49,6 +49,7 @@ const Dashboard = (props: Props) => {
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
   let widgetsMap = new Map(childWidget);
+  let defaultvalueRef:any = useRef();
 
   const buildCompoundCYGraph = (dataGraph: any) => {
     const tempCyGraph = CyCMGraph(dataGraph);
@@ -69,9 +70,6 @@ const Dashboard = (props: Props) => {
     });
     return parentChildCyGraph;
   };
-
-
-
   const extractAndAddChildren = (node: any, graph: any) => {
     let outgoers = node.outgoers();
     let elementsToAdd = [];
@@ -213,21 +211,24 @@ const Dashboard = (props: Props) => {
     }
     return values;
   };
+
   const createEntitySelectorPanel = (value: any, obcmEntity: any) => {
     let options: any[] = [];
     let selectedValue = value;
-
+    
     if (ancestorsMap.has(obcmEntity?.name) === true) {
-      var jurisdictionName = ancestorsMap.get(obcmEntity.name);
+      var jurisdictionName = ancestorsMap.get(obcmEntity.name);  
+      console.log(jurisdictionName)
+      if(jurisdictionName){
+        defaultvalueRef.current =   `${obcmEntity.name}`
+      }
+    
       options = [
         {
           value: jurisdictionName,
           label: jurisdictionName,
         },
-      ];
-
-
-
+      ];    
     } else if (descendantsMap.has(obcmEntity?.name) === true) {
       const retrievedValue = descendantValuesMap.current?.get(obcmEntity?.name);
       if (retrievedValue !== undefined) {
@@ -253,7 +254,7 @@ const Dashboard = (props: Props) => {
       options = extractValueOptionsFromObject(immediateChildEntityNode.data().name, ancestorsMap);
 
     }
-    selectedValue = jurisdictionName ? jurisdictionName : value
+    selectedValue = jurisdictionName ? jurisdictionName : value;
     let existingSelectObject = widgetsMap.get(obcmEntity?.name);
     if (existingSelectObject) {
       selectedValue = existingSelectObject.value || value;
@@ -264,11 +265,19 @@ const Dashboard = (props: Props) => {
       value: selectedValue,
     };
     widgetsMap.set(obcmEntity?.name, selectobject);
+
     return options;
   };
+  // const disabledComponents = ()=>{
+  //   if(defaultvalueRef){
+  //     const updatedDisabled: any = { ...disabledPanels };
+  //     updatedDisabled[defaultvalueRef.current] = true;
+  //     setDisabledPanels(updatedDisabled)
+  //      console.log(disabledPanels)
+  //      }
+  // }
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
-    console.log(value, previousSelectedValue)
     setSelectedOption({
       name: value === "all" ? previousSelectedValue : value,
       type: parentEntityName,
@@ -322,6 +331,7 @@ const Dashboard = (props: Props) => {
       if (!childEntity) {
         return;
       }
+      console.log(disabledPanels)
       let childEntityName = childEntity.name;
       let ancestorsMap = new Map();
       ancestorsMap.set(parentEntityName, parentEntityValue);
@@ -366,6 +376,8 @@ const Dashboard = (props: Props) => {
     }
 
   };
+
+
   const extractRecursively = (
     currentEntityNode: any,
     assignedEntityName: any,
@@ -417,7 +429,8 @@ const Dashboard = (props: Props) => {
       arras.push(obcmEntity);
     });
     return arras.map((node: any, index: any) => {
-      const selectOption = createEntitySelectorPanel(selectedValues[node.name], node);
+      const selectOption = createEntitySelectorPanel(selectedValues[node.name], node)     
+      console.log(arras[index].name)
       return (
         <>
           <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '0px' }}>
@@ -432,11 +445,11 @@ const Dashboard = (props: Props) => {
                   populateChildWidget(e, node.name, arras, index);
 
                 }}
-                disabled={index > 0 && disabledPanels[arras[index - 1].name]}
+                disabled={(arras[index].name === userInfo.userInfo.jurisdictions[0].type)||( index > 0 && disabledPanels[arras[index - 1].name])}
               >
                 {selectOption?.map((elss: any) => {
                   return (
-                    <>
+                    <> 
                       <Select.Option value={elss.value}>{elss.label}</Select.Option>
                     </>
                   );

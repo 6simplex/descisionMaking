@@ -22,7 +22,6 @@ type Props = {
 };
 
 const Wrapper = (props: Props) => {
-
   const { projectName } = useParams();
   const { project, userInfo } = useAppSelector((state) => state.reveloUserInfo);
   const [reportOutPuts, setReportOutPuts] = useState<any[]>([]);
@@ -38,7 +37,7 @@ const Wrapper = (props: Props) => {
   };
 
   const getReportPutOut = async () => {
-    const serverUrl = window.__rDashboard__.serverUrl;
+    // const serverUrl = window.__rDashboard__.serverUrl;
     setLoading(true);
     const payload: any[] = [];
     const getJtypeandJname = (): string[] => {
@@ -91,6 +90,8 @@ const Wrapper = (props: Props) => {
 
   useEffect(() => {
     getReportPutOut();
+  console.log(reportOutPuts)
+
   }, [refresh, props.jurisdiction]);
   return (
     <>
@@ -237,6 +238,7 @@ const Wrapper = (props: Props) => {
                   {props.outFields.type === "barGraph" ? (
                     <>
                       <ReveloBarGraph
+                        onClick={()=>{}}
                         data={reportOutPuts}
                         valueFieldName={
                           props.outFields.widgetInfo.valueFieldName

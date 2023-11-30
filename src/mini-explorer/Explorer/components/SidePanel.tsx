@@ -16,7 +16,7 @@ type Props = {
     date: any;
 }
 export const SidePanel = (props: Props) => {
-    console.log(props.date)
+    console.log(props)
     const { projectConceptModel } = useAppSelector(state => state.reveloUserInfo)
     const [indexes, setIndexes] = useState("")
     const [vendorid, setVendorId] = useState("")

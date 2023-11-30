@@ -419,7 +419,7 @@ const ExplorerContent2 = () => {
                   populateChildWidget(e, node.name, arras, index);
 
                 }}
-                disabled={index > 0 && disabledPanels[arras[index - 1].name]}
+                disabled={(arras[index].name === userInfo.userInfo.jurisdictions[0].type)||( index > 0 && disabledPanels[arras[index - 1].name])}
               >
                 {selectOption?.map((elss: any) => {
                   return (

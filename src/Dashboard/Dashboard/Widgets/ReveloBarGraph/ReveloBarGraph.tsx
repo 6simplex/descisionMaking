@@ -8,7 +8,15 @@ type Props = {
   xAxis: string;
   yAxis: string
 }
-const ReveloBarGraph = (props: Props) => {
+
+type ChildProps ={
+  onClick: (data: any) => void;
+}
+const ReveloBarGraph: React.FC<Props & ChildProps> = (props) => {
+
+  const handleClick = (data:any) => {
+   props.onClick(data);
+  };
   const createDataBarGraph = () => {
     const barGraph: any[] = []
     const result: any[] = [];
@@ -25,20 +33,19 @@ const ReveloBarGraph = (props: Props) => {
     });
     result.forEach((element) => {
       Object.keys(element).forEach((val) => {
+        
         barGraph.push({
           [props.xAxis]: autoCaptialize(val),
           [val]: element[val]
         })
       })
     })
-
-
     return barGraph
   }
   const autoCaptialize = (str: any): string => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
-
+console.log(createDataBarGraph())
   return (
     <ResponsiveBar
       data={createDataBarGraph()}
@@ -46,6 +53,7 @@ const ReveloBarGraph = (props: Props) => {
       indexBy={props.xAxis}
       margin={{ top: 50, right: 70, bottom: 50, left: 60 }}
       padding={0.3}
+      onClick={(data)=>{handleClick(data)}}
       groupMode="stacked"
       valueScale={{ type: 'linear' }}
       indexScale={{ type: 'band', round: true }}
