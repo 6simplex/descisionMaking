@@ -1,31 +1,39 @@
-import { Button, DatePicker, Divider, Select, Space, Spin, Typography, message } from "antd";
+import {
+  Button,
+  DatePicker,
+  Divider,
+  Select,
+  Space,
+  Spin,
+  Typography,
+  message,
+} from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../Redux/store/store";
-import cytoscape, {
-  EdgeDefinition,
-  NodeDefinition,
-} from "cytoscape";
+import cytoscape, { EdgeDefinition, NodeDefinition } from "cytoscape";
 import "./ExplorerContent2.css";
-import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
+import { getCurrentDateDDMMYYYY, todayDate } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { usePDF, Resolution } from "react-to-pdf";
 import { SidePanel2 } from "./components2/SidePanel2";
 import axios from "axios";
 import dayjs from "dayjs";
-import localeData from 'dayjs/plugin/localeData';
-import weekday from 'dayjs/plugin/weekday';
+import localeData from "dayjs/plugin/localeData";
+import weekday from "dayjs/plugin/weekday";
 import exportFromJSON from "export-from-json";
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 
 const ExplorerContent2 = () => {
-  const [downloadjson, setDownloadJson] = useState<any>([])
-  const [date, setDate] = useState<any>()
-  const [unitGeojson, setUnitGeojson] = useState()
-  const [loading, setLoading] = useState(true)
+  const [downloadjson, setDownloadJson] = useState<any>([]);
+  const [date, setDate] = useState<any>(todayDate());
+  const [unitGeojson, setUnitGeojson] = useState();
+  const [loading, setLoading] = useState(true);
   const { toPDF, targetRef } = usePDF({
-    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`, resolution: Resolution.NORMAL, page: { orientation: "landscape", },
-    method: "open"
+    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`,
+    resolution: Resolution.NORMAL,
+    page: { orientation: "landscape" },
+    method: "open",
   });
   //start of JS
   const [jurisdiction, setJurisdiction] = useState<any>();
@@ -34,8 +42,13 @@ const ExplorerContent2 = () => {
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, projectConceptModel } =
-    useAppSelector((state) => state.reveloUserInfo);
+  const {
+    obcmSnapShotDetails,
+    obcmSnapShot,
+    userInfo,
+    jurisdictions,
+    projectConceptModel,
+  } = useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
@@ -165,7 +178,7 @@ const ExplorerContent2 = () => {
   }
   if (immediateChildEntityNode) {
     getDescendants(immediateChildEntityNode);
-  };
+  }
   const extractValueOptionsFromObject = (
     entityName: any,
     ancestorsMap: any
@@ -215,7 +228,6 @@ const ExplorerContent2 = () => {
           label: jurisdictionName,
         },
       ];
-
     } else if (descendantsMap.has(obcmEntity?.name) === true) {
       const retrievedValue = descendantValuesMap.current?.get(obcmEntity?.name);
       if (retrievedValue !== undefined) {
@@ -226,7 +238,6 @@ const ExplorerContent2 = () => {
             selected: true,
           });
         });
-
       } else {
         options = [
           {
@@ -236,12 +247,13 @@ const ExplorerContent2 = () => {
           },
         ];
       }
+    } else {
+      options = extractValueOptionsFromObject(
+        immediateChildEntityNode.data().name,
+        ancestorsMap
+      );
     }
-    else {
-      options = extractValueOptionsFromObject(immediateChildEntityNode.data().name, ancestorsMap);
-
-    }
-    selectedValue = jurisdictionName ? jurisdictionName : value
+    selectedValue = jurisdictionName ? jurisdictionName : value;
     let existingSelectObject = widgetsMap.get(obcmEntity?.name);
     if (existingSelectObject) {
       selectedValue = existingSelectObject.value || value;
@@ -254,28 +266,40 @@ const ExplorerContent2 = () => {
     widgetsMap.set(obcmEntity?.name, selectobject);
     return options;
   };
-  const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
+  const populateChildWidget = (
+    value: any,
+    parentEntityName: any,
+    selectOptions: any,
+    index: any
+  ) => {
     const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
       name: value === "all" ? previousSelectedValue : value,
       type: parentEntityName,
-    })
+    });
     let options: any = [];
     let parentNode = obCMCYGraph.nodes("[id='" + parentEntityName + "']");
     let parentEntityValue = value;
-    const updatedValues = { ...selectedValues, [parentEntityName]: parentEntityValue };
-    const currentIndex = selectOptions.findIndex((item: any) => item.value === parentEntityValue);
+    const updatedValues = {
+      ...selectedValues,
+      [parentEntityName]: parentEntityValue,
+    };
+    const currentIndex = selectOptions.findIndex(
+      (item: any) => item.value === parentEntityValue
+    );
     const updatedDisabled: any = { ...disabledPanels };
     setSelectedValues(updatedValues);
     setDisabledPanels(updatedDisabled);
     let disableNext = false;
     if (parentEntityValue === "all") {
       for (let i = currentIndex + 1; i < selectOptions.length; i++) {
-        options = [{
-          label: "All",
-          selected: true,
-          value: "all"
-        }]
+        options = [
+          {
+            label: "All",
+            selected: true,
+            value: "all",
+          },
+        ];
         if (disableNext || updatedValues[selectOptions[i].name] === "all") {
           updatedValues[selectOptions[i].name] = "All";
           updatedDisabled[selectOptions[i].name] = true;
@@ -285,13 +309,15 @@ const ExplorerContent2 = () => {
         }
       }
     } else {
-      options = [{
-        label: parentEntityValue,
-        selected: true,
-        value: parentEntityValue
-      }]
+      options = [
+        {
+          label: parentEntityValue,
+          selected: true,
+          value: parentEntityValue,
+        },
+      ];
       for (let i = currentIndex + 1; i < selectOptions.length; i++) {
-        if (updatedValues[selectOptions[i].name] === 'all') {
+        if (updatedValues[selectOptions[i].name] === "all") {
           updatedValues[selectOptions[i].name] = options;
           updatedDisabled[selectOptions[i].name] = true;
         } else {
@@ -318,8 +344,8 @@ const ExplorerContent2 = () => {
           var ancestorWidget = widgetsMap.get(ancestorEntity.name);
           ancestorsMap.set(ancestorEntity.name, ancestorWidget.value);
         }
-      })
-      setChildWidget(widgetsMap)
+      });
+      setChildWidget(widgetsMap);
       let values = [
         {
           value: "all",
@@ -343,15 +369,14 @@ const ExplorerContent2 = () => {
             entityValues.forEach(function (entityValue) {
               values.push({
                 value: entityValue,
-                "label": entityValue
+                label: entityValue,
               });
             });
           }
         }
       }
-      descendantValuesMap.current.set(childEntityName, values)
+      descendantValuesMap.current.set(childEntityName, values);
     }
-
   };
   const extractRecursively = (
     currentEntityNode: any,
@@ -390,11 +415,11 @@ const ExplorerContent2 = () => {
   const handleReset = () => {
     const resetValues: any = {};
     Object.keys(selectedValues).forEach((panel) => {
-      resetValues[panel] = 'All';
+      resetValues[panel] = "All";
     });
     setSelectedValues(resetValues);
-    setJurisdiction(undefined)
-    setSelectedOption(undefined)
+    setJurisdiction(undefined);
+    setSelectedOption(undefined);
   };
   const selectWidget = () => {
     let obcmEntity: any;
@@ -404,31 +429,48 @@ const ExplorerContent2 = () => {
       arras.push(obcmEntity);
     });
     return arras.map((node: any, index: any) => {
-      const selectOption = createEntitySelectorPanel(selectedValues[node.name], node);
+      const selectOption = createEntitySelectorPanel(
+        selectedValues[node.name],
+        node
+      );
       return (
         <>
-          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
-            <Typography style={{ marginLeft: '0.7rem' }}>{node.label}</Typography>
+          <div
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "left",
+              marginLeft: "10px",
+            }}
+          >
+            <Typography style={{ marginLeft: "0.7rem" }}>
+              {node.label}
+            </Typography>
             <div>
               <Select
                 key={node.value}
-                style={{ minWidth: "160px", marginTop: '3px', marginLeft: '0.5rem' }}
+                style={{
+                  minWidth: "160px",
+                  marginTop: "3px",
+                  marginLeft: "0.5rem",
+                }}
                 defaultValue={selectOption[0]?.label}
                 value={selectedValues[node.name]}
                 onChange={(e) => {
                   populateChildWidget(e, node.name, arras, index);
-
                 }}
                 disabled={(arras[index].name === userInfo.userInfo.jurisdictions[0].type)||( index > 0 && disabledPanels[arras[index - 1].name])}
               >
                 {selectOption?.map((elss: any) => {
                   return (
                     <>
-                      <Select.Option value={elss.value}>{elss.label}</Select.Option>
+                      <Select.Option value={elss.value}>
+                        {elss.label}
+                      </Select.Option>
                     </>
                   );
                 })}
-
               </Select>
             </div>
           </div>
@@ -444,7 +486,7 @@ const ExplorerContent2 = () => {
         userInfo.userInfo.jurisdictions[0]?.type,
       ];
     } else if (jurisdiction) {
-      return ([jurisdiction.name, jurisdiction.type]);
+      return [jurisdiction.name, jurisdiction.type];
     } else {
       return [
         userInfo.userInfo.jurisdictions[0]?.name,
@@ -453,122 +495,172 @@ const ExplorerContent2 = () => {
     }
   };
   const getReports = async () => {
-    let payload: any = []
-    let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
+    let payload: any = [];
+    let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo
+      .isSSLEnabled
+      ? "https"
+      : "http";
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {
-      const reportOutPut = await axios.post(`${protocol}://${domain}/nmc_explorer_data_generator/_search`, {
-        size: 1000,
-
-      })
+      const reportOutPut = await axios.post(
+        `${protocol}://${domain}/nmc_explorer_data_generator/_search`,
+        {
+          size: 1000,
+          query: {
+            match: {
+              shiftdate: date,
+            },
+          },
+        }
+      );
       if (reportOutPut.data.error) {
         setLoading(false);
         return message.error("Something went Wrong");
       }
       reportOutPut.data.hits.hits.forEach((outPut: any) => {
-        payload.push(outPut._source)
-        setDownloadJson(payload)
+        payload.push(outPut._source);
+        setDownloadJson(payload);
       });
-
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-  }
+  };
   const getlistdata = async () => {
-    setLoading(true)
-    await axios.get(`${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/unit/query?${getJtypeandJname()[1]}=${getJtypeandJname()[0]}`).then(((res) => {
-      if (res.status === 200) {
-        setUnitGeojson(res.data)
-        setLoading(false)
-      }
-
-    })).catch(((err) => {
-      console.log(err)
-      setLoading(false)
-
-    }))
-  }
+    setLoading(true);
+    await axios
+      .get(
+        `${window.__rDashboard__.serverUrl}/conceptmodels/${
+          projectConceptModel.name
+        }/entities/unit/query?${getJtypeandJname()[1]}=${getJtypeandJname()[0]}`
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          setUnitGeojson(res.data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  };
   useEffect(() => {
-    getlistdata()
-    getReports()
-
-  }, [jurisdiction])
-  return (<>
-    <div className='widget-wrapper'  >
-      <div className='select-widget' >
-        <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '15px' }}>
-          <Typography style={{ marginLeft: "5px" }}>Date</Typography>
-          <DatePicker
-
-            allowClear={false}
-            disabled={true}
-            disabledDate={current => {
-              const currentDate = dayjs();
-              return current && current.isAfter(currentDate, 'day');
+    getReports();
+  }, [date]);
+  useEffect(() => {
+    getlistdata();
+  }, [jurisdiction]);
+  return (
+    <>
+      <div className="widget-wrapper">
+        <div className="select-widget">
+          <div
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "left",
+              marginLeft: "15px",
             }}
-            defaultValue={dayjs()}
-            showToday
-            onChange={(date, dateString) => {
-              setDate(new Date(dateString).toISOString().split('T')[0]);
-            }}
-          />
+          >
+            <Typography style={{ marginLeft: "5px" }}>Date</Typography>
+            <DatePicker
+              allowClear={false}
+              disabled={loading}
+              disabledDate={(current) => {
+                const currentDate = dayjs();
+                return current && current.isAfter(currentDate, "day");
+              }}
+              defaultValue={dayjs()}
+              showToday
+              onChange={(date, dateString) => {
+                setDate(new Date(dateString).toISOString().split("T")[0]);
+              }}
+            />
+          </div>
+          {selectWidget()}
+          <div className="button-wrapper">
+            <Space>
+              <Button
+                type="primary"
+                onClick={() => {
+                  setJurisdiction(selectedOption);
+                }}
+              >
+                Apply Filters
+              </Button>
+              <Button
+                type="link"
+                onClick={() => {
+                  handleReset();
+                  // setDate("")
+                }}
+              >
+                Reset
+              </Button>
+            </Space>
+          </div>
         </div>
-        {selectWidget()}
-        <div className="button-wrapper">
-          <Space>
-            <Button type="primary" onClick={() => { setJurisdiction(selectedOption) }}>
-              Apply Filters
-            </Button>
-            <Button type="link" onClick={() => {
+        <div ref={targetRef} className="button-refresh">
+          <Button
+            type="primary"
+            onClick={() => {
+              if (downloadjson.length === 0) {
+                message.info("No report for selected Date");
+              } else {
+                const data = downloadjson;
+                const fileName = downloadjson[0].shiftdate;
+                const exportType = exportFromJSON.types.xls;
+                const fields = {
+                  shiftdate: "Shift Date",
+                  vendorname: "Vendor Name",
+                  unitname: "Unit Name",
+                  ward: "Ward",
+                  zone: "Zone",
+                  city: "City",
+                  numshift: "No of shift",
+                  numshiftcleaned: "No of Shift Cleaned",
+                  numshiftskipped: "No of shift Skipped",
+                  numshiftDamaged: "No of Shift Damaged",
+                  amount: "amount",
+                };
+                exportFromJSON({ data, fileName, fields: fields, exportType });
+              }
+            }}
+            icon={<DownloadOutlined />}
+          />
+          <Button
+            type="primary"
+            style={{ marginLeft: "3px" }}
+            onClick={() => {
               handleReset();
               // setDate("")
-
-            }}>
-              Reset
-            </Button>
-          </Space>
+            }}
+            icon={<RedoOutlined />}
+          />
         </div>
       </div>
-      <div ref={targetRef} className="button-refresh">
-        <Button type="primary" onClick={() => {
-          const data = downloadjson
-          const fileName = downloadjson[0].shiftdate
-          const exportType = exportFromJSON.types.xls
-          const fields ={shiftdate:"Shift Date",vendorname:"Vendor Name",ward:"Ward",zone:"Zone",city:"City",numshift:"No of shift",numshiftcleaned:"No of Shift Cleaned",numshiftskipped:"No of shift Skipped",numshiftDamaged: "No of Shift Damaged",amount:"amount"}
-            exportFromJSON({ data, fileName, fields: fields, exportType })
-        }} icon={<DownloadOutlined />} />
-        <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => {
-          handleReset();
-          // setDate("")
-        }} icon={<RedoOutlined />} />
-      </div>
-    </div>
-    <div
-      className="main-dashBoard-wrapper1"
-    >
-
-      {/* {loading ? (
+      <div className="main-dashBoard-wrapper1">
+        {/* {loading ? (
         <>
           <Spin tip="Loading..." style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center" }} />
         </>
       ) : (
         <> */}
 
-      <div className="chart-container1">
-        <SidePanel2
-          loading={loading}
-          unit={unitGeojson}
-          jurisdiction={getJtypeandJname()}
-          date={date}
-        />
-      </div>
-      {/* </>
+        <div className="chart-container1">
+          <SidePanel2
+            loading={loading}
+            unit={unitGeojson}
+            jurisdiction={getJtypeandJname()}
+            date={date}
+          />
+        </div>
+        {/* </>
       )} */}
-    </div>
-  </>
-  )
+      </div>
+    </>
+  );
+};
 
-
-}
-
-export default ExplorerContent2
+export default ExplorerContent2;

@@ -8,6 +8,7 @@ type Props = {
 }
 
 export const AttachmentBox = (props: Props) => {
+    console.log(props.shiftid)
     const [thumbnail, setThumbnail] = useState([])
     const [loading, setLoading] = useState(true)
     const [loading1, setLoading1] = useState(true)
