@@ -6,9 +6,11 @@ type Props = {
   valueFieldName: any;
   arcLinkLabels?: boolean;
   bottom?: number;
+  total?:number
 };
 
 const ReveloPie = (props: Props) => {
+  
   const createDataForPie = () => {
     const pieData: any[] = [];
     const result: any[] = [];
@@ -47,7 +49,7 @@ const ReveloPie = (props: Props) => {
           fontSize="1.1rem"
           fontWeight={500}
         >
-          {createDataForPie().reduce((total, item) => total + item.value, 0)}
+          {props.total?props.total: createDataForPie().reduce((total, item) => total + item.value, 0)}
         </text>
       </g>
     );
@@ -76,7 +78,7 @@ const ReveloPie = (props: Props) => {
       arcLabel={(e) =>
         `${(
           (e.value /
-            createDataForPie().reduce((total, item) => total + item.value, 0)) *
+         ( props.total?props.total: createDataForPie().reduce((total, item) => total + item.value, 0))) *
           100
         ).toFixed(2)}%`
       }
@@ -123,10 +125,7 @@ const ReveloPie = (props: Props) => {
               }}
             >{`${e.datum.id}: ${e.datum.formattedValue} (${(
               (e.datum.value /
-                createDataForPie().reduce(
-                  (total, item) => total + item.value,
-                  0
-                )) *
+               (props.total?props.total: createDataForPie().reduce((total, item) => total + item.value, 0))) *
               100
             ).toFixed(2)}%)`}</Typography>
           </div>{" "}

@@ -22,6 +22,7 @@ type Props = {
 };
 
 const Wrapper = (props: Props) => {
+  console.log(props.name)
   const { projectName } = useParams();
   const { project, userInfo } = useAppSelector((state) => state.reveloUserInfo);
   const [reportOutPuts, setReportOutPuts] = useState<any[]>([]);
@@ -60,12 +61,12 @@ const Wrapper = (props: Props) => {
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {
       const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_${props.name.toLocaleLowerCase()}/_search`, {
-        size: 1000,
+        size: 10000,
         "query": {
           "dis_max": {
             "queries": [
 
-              { "match": { jurisdictionName: getJtypeandJname()[0] } }
+              { "match_phrase": { jurisdictionName: getJtypeandJname()[0] } }
             ]
           }
         }
@@ -90,9 +91,10 @@ const Wrapper = (props: Props) => {
 
   useEffect(() => {
     getReportPutOut();
-  console.log(reportOutPuts)
+ 
 
   }, [refresh, props.jurisdiction]);
+
   return (
     <>
       <div className="main-wrapper">
@@ -250,13 +252,13 @@ const Wrapper = (props: Props) => {
                   ) : (
                     <></>
                   )}
-                  {props.outFields.type === "Table" ? (
+                  {/* {props.outFields.type === "Table" ? (
                     <>
                       <ReveloTable data={reportOutPuts} />
                     </>
                   ) : (
                     <></>
-                  )}
+                  )} */}
                 </div>
               </>
             ) : (

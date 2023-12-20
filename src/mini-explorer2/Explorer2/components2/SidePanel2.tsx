@@ -43,7 +43,7 @@ export const SidePanel2 = (props: Props) => {
     setLoading(true);
     await axios
       .get(
-        `${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/blocks/query?unitid=${id}`
+        `${window.__rDashboard__.serverUrl}/conceptmodels/${projectConceptModel.name}/entities/block/query?unitid=${id}`
       )
       .then((res) => {
         if (res.status === 200) {
@@ -277,21 +277,20 @@ export const SidePanel2 = (props: Props) => {
                 gridTemplateRows: "30% 70%",
               }}
             >
-              <div className="block-1" style={{ padding: "10px" }}>
+              <div className="block-1" style={{height:"inherit"}}>
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: "row",
+                    flexDirection: "column",
                     placeItems: "center",
                     placeContent: "flex-start",
                   }}
                 >
-                  <Typography style={{ fontSize: "150%" }}>Unit:</Typography>
+                  <Typography style={{ fontSize: "125%" }}>Unit:</Typography>
                   <Typography
                     style={{
                       color: "#0075ea",
-                      fontSize: "150%",
-                      marginLeft: "5px",
+                      fontSize: "125%",
                     }}
                   >
                     {indexes}
@@ -301,8 +300,8 @@ export const SidePanel2 = (props: Props) => {
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    placeItems: "flex-start",
-                    marginTop: "10px",
+                    placeItems: "center",
+                    placeContent: "flex-start",
                   }}
                 >
                   <Typography style={{ fontSize: "125%" }}>
@@ -312,9 +311,9 @@ export const SidePanel2 = (props: Props) => {
                     style={{
                       display: "flex",
                       width: "100%",
-                      flexDirection: "row",
-                      flexWrap: "wrap",
-                      marginTop: "10px",
+                      flexDirection: "column",
+                      placeItems: "center",
+                      placeContent: "flex-start",
                     }}
                   >
                     {createEntitySequence(
@@ -334,13 +333,16 @@ export const SidePanel2 = (props: Props) => {
                                 }}
                               >
                                 {el.label}:
+                              </Typography>
+                              <Typography
+                                style={{
+                                  fontSize: "110%",
+                                  marginRight: "10px",
+                                }}
+                              >
                                 <b style={{ color: "#0075ea" }}>
                                   {unitDetails[el.name]}
                                 </b>
-                                {index + 1 ===
-                                obcmSnapShotDetails.entities.length
-                                  ? ""
-                                  : ` >`}
                               </Typography>
                             </>
                           )}
