@@ -6,11 +6,10 @@ type Props = {
   valueFieldName: any;
   arcLinkLabels?: boolean;
   bottom?: number;
-  total?:number
+  total?: number;
 };
 
 const ReveloPie = (props: Props) => {
-  
   const createDataForPie = () => {
     const pieData: any[] = [];
     const result: any[] = [];
@@ -49,7 +48,9 @@ const ReveloPie = (props: Props) => {
           fontSize="1.1rem"
           fontWeight={500}
         >
-          {props.total?props.total: createDataForPie().reduce((total, item) => total + item.value, 0)}
+          {props.total
+            ? props.total
+            : createDataForPie().reduce((total, item) => total + item.value, 0)}
         </text>
       </g>
     );
@@ -78,7 +79,12 @@ const ReveloPie = (props: Props) => {
       arcLabel={(e) =>
         `${(
           (e.value /
-         ( props.total?props.total: createDataForPie().reduce((total, item) => total + item.value, 0))) *
+            (props.total
+              ? props.total
+              : createDataForPie().reduce(
+                  (total, item) => total + item.value,
+                  0
+                ))) *
           100
         ).toFixed(2)}%`
       }
@@ -125,7 +131,12 @@ const ReveloPie = (props: Props) => {
               }}
             >{`${e.datum.id}: ${e.datum.formattedValue} (${(
               (e.datum.value /
-               (props.total?props.total: createDataForPie().reduce((total, item) => total + item.value, 0))) *
+                (props.total
+                  ? props.total
+                  : createDataForPie().reduce(
+                      (total, item) => total + item.value,
+                      0
+                    ))) *
               100
             ).toFixed(2)}%)`}</Typography>
           </div>{" "}
@@ -136,8 +147,8 @@ const ReveloPie = (props: Props) => {
           anchor: props.arcLinkLabels === true ? "top-right" : "bottom",
           direction: props.arcLinkLabels === true ? "column" : "row",
           justify: false,
-          translateX: 0,
-          translateY: 56,
+          translateX: props.arcLinkLabels === true ? 25 : 0,
+          translateY: props.arcLinkLabels === true ? -30 : 56,
           itemsSpacing: 0,
           itemWidth: 95,
           itemHeight: 18,

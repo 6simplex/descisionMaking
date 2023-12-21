@@ -42,13 +42,18 @@ const ExplorerContent2 = () => {
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, projectConceptModel } =
-    useAppSelector((state) => state.reveloUserInfo);
+  const {
+    obcmSnapShotDetails,
+    obcmSnapShot,
+    userInfo,
+    jurisdictions,
+    projectConceptModel,
+  } = useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
   let widgetsMap = new Map(childWidget);
-  let defaultvalueRef:any = useRef();
+  let defaultvalueRef: any = useRef();
 
   const buildCompoundCYGraph = (dataGraph: any) => {
     const tempCyGraph = CyCMGraph(dataGraph);
@@ -172,7 +177,7 @@ const ExplorerContent2 = () => {
   }
   if (immediateChildEntityNode) {
     getDescendants(immediateChildEntityNode);
-  };
+  }
   const extractValueOptionsFromObject = (
     entityName: any,
     ancestorsMap: any
@@ -214,20 +219,20 @@ const ExplorerContent2 = () => {
   const createEntitySelectorPanel = (value: any, obcmEntity: any) => {
     let options: any[] = [];
     let selectedValue = value;
-    
+
     if (ancestorsMap.has(obcmEntity?.name) === true) {
-      var jurisdictionName = ancestorsMap.get(obcmEntity.name);  
-      console.log(jurisdictionName)
-      if(jurisdictionName){
-        defaultvalueRef.current =   `${obcmEntity.name}`
+      var jurisdictionName = ancestorsMap.get(obcmEntity.name);
+      console.log(jurisdictionName);
+      if (jurisdictionName) {
+        defaultvalueRef.current = `${obcmEntity.name}`;
       }
-    
+
       options = [
         {
           value: jurisdictionName,
           label: jurisdictionName,
         },
-      ];    
+      ];
     } else if (descendantsMap.has(obcmEntity?.name) === true) {
       const retrievedValue = descendantValuesMap.current?.get(obcmEntity?.name);
       if (retrievedValue !== undefined) {
@@ -238,7 +243,6 @@ const ExplorerContent2 = () => {
             selected: true,
           });
         });
-
       } else {
         options = [
           {
@@ -248,10 +252,11 @@ const ExplorerContent2 = () => {
           },
         ];
       }
-    }
-    else {
-      options = extractValueOptionsFromObject(immediateChildEntityNode.data().name, ancestorsMap);
-
+    } else {
+      options = extractValueOptionsFromObject(
+        immediateChildEntityNode.data().name,
+        ancestorsMap
+      );
     }
     selectedValue = jurisdictionName ? jurisdictionName : value;
     let existingSelectObject = widgetsMap.get(obcmEntity?.name);
@@ -267,29 +272,41 @@ const ExplorerContent2 = () => {
 
     return options;
   };
- 
-  const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
+
+  const populateChildWidget = (
+    value: any,
+    parentEntityName: any,
+    selectOptions: any,
+    index: any
+  ) => {
     const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
       name: value === "all" ? previousSelectedValue : value,
       type: parentEntityName,
-    })
+    });
     let options: any = [];
     let parentNode = obCMCYGraph.nodes("[id='" + parentEntityName + "']");
     let parentEntityValue = value;
-    const updatedValues = { ...selectedValues, [parentEntityName]: parentEntityValue };
-    const currentIndex = selectOptions.findIndex((item: any) => item.value === parentEntityValue);
+    const updatedValues = {
+      ...selectedValues,
+      [parentEntityName]: parentEntityValue,
+    };
+    const currentIndex = selectOptions.findIndex(
+      (item: any) => item.value === parentEntityValue
+    );
     const updatedDisabled: any = { ...disabledPanels };
     setSelectedValues(updatedValues);
     setDisabledPanels(updatedDisabled);
     let disableNext = false;
     if (parentEntityValue === "all") {
       for (let i = currentIndex + 1; i < selectOptions.length; i++) {
-        options = [{
-          label: "All",
-          selected: true,
-          value: "all"
-        }]
+        options = [
+          {
+            label: "All",
+            selected: true,
+            value: "all",
+          },
+        ];
         if (disableNext || updatedValues[selectOptions[i].name] === "all") {
           updatedValues[selectOptions[i].name] = "All";
           updatedDisabled[selectOptions[i].name] = true;
@@ -299,13 +316,15 @@ const ExplorerContent2 = () => {
         }
       }
     } else {
-      options = [{
-        label: parentEntityValue,
-        selected: true,
-        value: parentEntityValue
-      }]
+      options = [
+        {
+          label: parentEntityValue,
+          selected: true,
+          value: parentEntityValue,
+        },
+      ];
       for (let i = currentIndex + 1; i < selectOptions.length; i++) {
-        if (updatedValues[selectOptions[i].name] === 'all') {
+        if (updatedValues[selectOptions[i].name] === "all") {
           updatedValues[selectOptions[i].name] = options;
           updatedDisabled[selectOptions[i].name] = true;
         } else {
@@ -323,7 +342,7 @@ const ExplorerContent2 = () => {
       if (!childEntity) {
         return;
       }
-      console.log(disabledPanels)
+      console.log(disabledPanels);
       let childEntityName = childEntity.name;
       let ancestorsMap = new Map();
       ancestorsMap.set(parentEntityName, parentEntityValue);
@@ -333,8 +352,8 @@ const ExplorerContent2 = () => {
           var ancestorWidget = widgetsMap.get(ancestorEntity.name);
           ancestorsMap.set(ancestorEntity.name, ancestorWidget.value);
         }
-      })
-      setChildWidget(widgetsMap)
+      });
+      setChildWidget(widgetsMap);
       let values = [
         {
           value: "all",
@@ -358,17 +377,15 @@ const ExplorerContent2 = () => {
             entityValues.forEach(function (entityValue) {
               values.push({
                 value: entityValue,
-                "label": entityValue
+                label: entityValue,
               });
             });
           }
         }
       }
-      descendantValuesMap.current.set(childEntityName, values)
+      descendantValuesMap.current.set(childEntityName, values);
     }
-
   };
-
 
   const extractRecursively = (
     currentEntityNode: any,
@@ -407,11 +424,11 @@ const ExplorerContent2 = () => {
   const handleReset = () => {
     const resetValues: any = {};
     Object.keys(selectedValues).forEach((panel) => {
-      resetValues[panel] = 'All';
+      resetValues[panel] = "All";
     });
     setSelectedValues(resetValues);
-    setJurisdiction(undefined)
-    setSelectedOption(undefined)
+    setJurisdiction(undefined);
+    setSelectedOption(undefined);
   };
   const selectWidget = () => {
     let obcmEntity: any;
@@ -421,32 +438,53 @@ const ExplorerContent2 = () => {
       arras.push(obcmEntity);
     });
     return arras.map((node: any, index: any) => {
-      const selectOption = createEntitySelectorPanel(selectedValues[node.name], node)     
-      console.log(arras[index].name)
+      const selectOption = createEntitySelectorPanel(
+        selectedValues[node.name],
+        node
+      );
+      console.log(arras[index].name);
       return (
         <>
-          <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '0px' }}>
-            <Typography style={{ marginLeft: '0.7rem' }}>{node.label}</Typography>
+          <div
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "left",
+              marginLeft: "0px",
+            }}
+          >
+            <Typography style={{ marginLeft: "0.7rem" }}>
+              {node.label}
+            </Typography>
             <div>
               <Select
                 key={node.value}
-                style={{ width: "160px", marginTop: '3px', marginLeft: '0.5rem' }}
+                style={{
+                  width: "160px",
+                  marginTop: "3px",
+                  marginLeft: "0.5rem",
+                }}
                 defaultValue={selectOption[0]?.label}
                 value={selectedValues[node.name]}
                 onChange={(e) => {
                   populateChildWidget(e, node.name, arras, index);
-
                 }}
-                disabled={(arras[index].name === userInfo.userInfo.jurisdictions[0].type)||( index > 0 && disabledPanels[arras[index - 1].name])}
+                disabled={
+                  arras[index].name ===
+                    userInfo.userInfo.jurisdictions[0].type ||
+                  (index > 0 && disabledPanels[arras[index - 1].name])
+                }
               >
                 {selectOption?.map((elss: any) => {
                   return (
-                    <> 
-                      <Select.Option value={elss.value}>{elss.label}</Select.Option>
+                    <>
+                      <Select.Option value={elss.value}>
+                        {elss.label}
+                      </Select.Option>
                     </>
                   );
                 })}
-
               </Select>
             </div>
           </div>
@@ -502,7 +540,6 @@ const ExplorerContent2 = () => {
     }
   };
   const getlistdata = async () => {
-  
     setLoading(true);
     await axios
       .get(
@@ -586,7 +623,7 @@ const ExplorerContent2 = () => {
                 message.info("No report for selected Date");
               } else {
                 const data = downloadjson;
-                const fileName = downloadjson[0].shiftdate;
+                const fileName = `tmsreport_${downloadjson[0].shiftdate}`;
                 const exportType = exportFromJSON.types.xls;
                 const fields = {
                   shiftdate: "Shift Date",
@@ -599,6 +636,9 @@ const ExplorerContent2 = () => {
                   numshiftcleaned: "No of Shift Cleaned",
                   numshiftskipped: "No of shift Skipped",
                   numshiftDamaged: "No of Shift Damaged",
+                  numshiftBlocked: "No of Shift Blocked",
+                  numshiftLocked: "No of Shift Locked",
+                  numshiftStolen: "No of Shift Stolen",
                   amount: "amount",
                 };
                 exportFromJSON({ data, fileName, fields: fields, exportType });
