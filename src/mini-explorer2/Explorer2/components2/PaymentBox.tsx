@@ -8,6 +8,7 @@ const PaymentBox = (props: Props) => {
   return (
     <>
       {props.bill.map((bill: any) => {
+        console.log(bill);
         return (
           <>
             <div
@@ -71,16 +72,22 @@ const PaymentBox = (props: Props) => {
                         arcLinkLabels={true}
                         data={[
                           {
-                            shiftDamaged: bill.numshiftDamaged,
-                            shiftCleaned: bill.numshiftcleaned,
-                            shiftSkipped: bill.numshiftskipped,
+                            Damaged: bill.numshiftDamaged,
+                            Cleaned: bill.numshiftcleaned,
+                            Skipped: bill.numshiftskipped,
+                            Blocked: bill.numshiftBlocked,
+                            Locked: bill.numshiftLocked,
+                            Stolen: bill.numshiftStolen,
                           },
                         ]}
                         bottom={45}
                         valueFieldName={[
-                          "shiftDamaged",
-                          "shiftCleaned",
-                          "shiftSkipped",
+                          "Damaged",
+                          "Cleaned",
+                          "Skipped",
+                          "Blocked",
+                          "Locked",
+                          "Stolen",
                         ]}
                       />
                     </div>

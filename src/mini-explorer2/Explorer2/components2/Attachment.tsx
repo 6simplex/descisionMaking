@@ -10,7 +10,6 @@ type Props = {
   shifts: any[];
 };
 const Attachment = (props: Props) => {
-  console.log(props.shifts);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const [downloadImages, setDownloadedImages] = useState([]);
@@ -80,25 +79,44 @@ const Attachment = (props: Props) => {
     });
   };
   return (
-    <div>
-      <Segmented
-        options={["Morning", "Afternoon", "Evening"]}
-        value={value}
-        onChange={(e) => {
-          setValue(e);
-          if (
-            props.shifts.filter((shift: any) => shift.shiftName === e).length >
-            0
-          ) {
-            getAttachmentMetaData(
-              props.shifts.filter((shift: any) => shift.shiftName === e)[0]
-                .shiftId
-            );
-          } else {
-            setProperties([]);
-          }
+    <>
+      <div
+        style={{ display: "flex", flexDirection: "row", placeItems: "center" }}
+      >
+        <Typography style={{ fontSize: "150%" }}>Shift:</Typography>
+        <Typography
+          style={{ fontSize: "150%", color: "#0075ea", marginLeft: "5px" }}
+        >
+          {value}
+        </Typography>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          placeItems: "center",
+          placeContent: "center",
         }}
-      />
+      >
+        <Segmented
+          options={["Morning", "Afternoon", "Evening"]}
+          value={value}
+          onChange={(e) => {
+            setValue(e);
+            if (
+              props.shifts.filter((shift: any) => shift.shiftName === e)
+                .length > 0
+            ) {
+              getAttachmentMetaData(
+                props.shifts.filter((shift: any) => shift.shiftName === e)[0]
+                  .shiftId
+              );
+            } else {
+              setProperties([]);
+            }
+          }}
+        />
+      </div>
       {loadComplete ? (
         <></>
       ) : (
@@ -106,7 +124,8 @@ const Attachment = (props: Props) => {
           {properties.length > 0 ? (
             <>
               <Carousel
-                wrapAround
+                style={{ marginTop: "10px" }}
+                // wrapAround
                 defaultControlsConfig={{
                   nextButtonText: (
                     <>
@@ -121,7 +140,7 @@ const Attachment = (props: Props) => {
                   pagingDotsStyle: { display: "none" },
                 }}
               >
-                {properties.map((property: any) => {
+                {properties.map((properties: any) => {
                   return (
                     <>
                  
@@ -130,9 +149,13 @@ const Attachment = (props: Props) => {
                           downloadImage();
                         }}
                         preview={false}
-                        style={{ objectFit: "contain" }}
-                        src={`data:image/png;base64,${property.properties.thumbnailastext}`}
-                        alt={property.properties.name}
+                        style={{
+                          objectFit: "contain",
+                          filter: "drop-shadow(rgb(0, 0, 0) 5px 5px 10px)",
+                          marginBottom: "5px",
+                        }}
+                        src={`data:image/png;base64,${properties.properties.thumbnailastext}`}
+                        alt={properties.properties.name}
                         width={"100%"}
                         height={"200px"}
                       />
@@ -144,11 +167,12 @@ const Attachment = (props: Props) => {
                             flexDirection: "row",
                             placeContent: "center",
                             placeItems: "center",
+                            marginTop: "10%",
                           }}
                         >
                           <Typography>Name:</Typography>
-                          <Typography style={{ fontWeight: "bold" }}>
-                            {property.properties.name}
+                          <Typography style={{ fontWeight: "bold"  ,marginLeft:"2px"}}>
+                            {properties.properties.name}
                           </Typography>
                         </div>
                         <div
@@ -160,8 +184,8 @@ const Attachment = (props: Props) => {
                           }}
                         >
                           <Typography>User Name:</Typography>
-                          <Typography style={{ fontWeight: "bold" }}>
-                            {property.properties.username}
+                          <Typography style={{ fontWeight: "bold" ,marginLeft:"2px" }}>
+                            {properties.properties.username}
                           </Typography>
                         </div>
                         <div
@@ -172,9 +196,9 @@ const Attachment = (props: Props) => {
                             placeItems: "center",
                           }}
                         >
-                          <Typography>Date & Time</Typography>
-                          <Typography style={{ fontWeight: "bold" }}>
-                            {property.properties.savedate}
+                          <Typography>Date & Time:</Typography>
+                          <Typography style={{ fontWeight: "bold" ,marginLeft:"2px"}}>
+                            {properties.properties.savedate}
                           </Typography>
                         </div>
                       </div>
@@ -222,7 +246,7 @@ const Attachment = (props: Props) => {
           }
         />
       )}
-    </div>
+    </>
   );
 };
 

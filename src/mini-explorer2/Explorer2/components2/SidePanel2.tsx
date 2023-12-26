@@ -1,15 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../../Redux/store/store";
-import {
-  Checkbox,
-  Divider,
-  List,
-  Segmented,
-  Spin,
-  Typography,
-  message,
-} from "antd";
+import { Checkbox, List, Spin, Typography, message } from "antd";
 import { fromLonLat } from "ol/proj";
 import "ol/ol.css";
 import { RFeature, RLayerVector, RMap, ROSM } from "rlayers";
@@ -277,7 +269,7 @@ export const SidePanel2 = (props: Props) => {
                 gridTemplateRows: "30% 70%",
               }}
             >
-              <div className="block-1" style={{height:"inherit"}}>
+              <div className="block-1" style={{ height: "inherit" }}>
                 <div
                   style={{
                     display: "flex",
@@ -301,19 +293,19 @@ export const SidePanel2 = (props: Props) => {
                     display: "flex",
                     flexDirection: "column",
                     placeItems: "center",
-                    placeContent: "flex-start",
+                    placeContent: "center",
                   }}
                 >
-                  <Typography style={{ fontSize: "125%" }}>
+                  {/* <Typography style={{ fontSize: "125%" }}>
                     Jurisdictions:
-                  </Typography>
+                  </Typography> */}
                   <div
                     style={{
                       display: "flex",
                       width: "100%",
                       flexDirection: "column",
                       placeItems: "center",
-                      placeContent: "flex-start",
+                      placeContent: "center",
                     }}
                   >
                     {createEntitySequence(
@@ -338,11 +330,10 @@ export const SidePanel2 = (props: Props) => {
                                 style={{
                                   fontSize: "110%",
                                   marginRight: "10px",
+                                  color: "#0075ea",
                                 }}
                               >
-                                <b style={{ color: "#0075ea" }}>
-                                  {unitDetails[el.name]}
-                                </b>
+                                {unitDetails[el.name]}
                               </Typography>
                             </>
                           )}
@@ -381,9 +372,9 @@ export const SidePanel2 = (props: Props) => {
                         {indexesBlock}
                       </Typography>
                     </div>
-                    <Typography style={{ fontSize: "150%" }}>
+                    {/* <Typography style={{ fontSize: "150%" }}>
                       Shifts:
-                    </Typography>
+                    </Typography> */}
                     {shiftIds.length === 0 ? (
                       <>
                         <div
