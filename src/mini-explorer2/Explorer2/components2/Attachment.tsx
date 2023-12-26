@@ -130,8 +130,7 @@ const Attachment = (props: Props) => {
                   nextButtonText: (
                     <>
                       <ArrowRightOutlined />
-                    </>
-                  ),
+                    </>),
                   prevButtonText: (
                     <>
                       <ArrowLeftOutlined />
@@ -142,8 +141,7 @@ const Attachment = (props: Props) => {
               >
                 {properties.map((properties: any) => {
                   return (
-                    <>
-                 
+                    <>     
                     <Image
                         onClick={() => {
                           downloadImage();
@@ -159,7 +157,6 @@ const Attachment = (props: Props) => {
                         width={"100%"}
                         height={"200px"}
                       />
-               
                       <div>
                         <div
                           style={{
