@@ -1,12 +1,14 @@
 
 import { useParams } from "react-router-dom";
 import React, {useEffect, useRef, useState } from "react";
-import { Button, Divider, Select, Space, Typography } from "antd";
+import { Button, DatePicker, Divider, Select, Space, Typography } from "antd";
 import './report.css';
 import IndividualReportMap from "./MapComponent";
 import { useAppSelector } from "../../Redux/store/store";
 import cytoscape, { EdgeDefinition, NodeDefinition } from "cytoscape";
 import axios from "axios";
+import dayjs from "dayjs";
+import { formatDateString } from "../../utils/map";
 
 const IndividualReport = (props: any) => {
   const serverUrl = window.__rDashboard__.serverUrl;
@@ -18,6 +20,7 @@ const IndividualReport = (props: any) => {
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
+  const [date, setDate] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
   const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions ,projectConceptModel} = useAppSelector((state) => state.reveloUserInfo);
@@ -460,10 +463,36 @@ const IndividualReport = (props: any) => {
         setLoading(false)
       })
   }
+  console.log(date)
   return (
     <>
       <div className='widget-wrapper'  >
-        <div className='select-widget' >{selectWidget()}
+        <div className='select-widget' >
+        {/* <div
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              justifyContent: "space-around",
+              alignItems: "left",
+              marginLeft: "15px",
+            }}
+          >
+            <Typography style={{ marginLeft: "5px" }}>Date</Typography>
+            <DatePicker
+              allowClear={false}
+              // disabled={loading}
+              disabledDate={(current) => {
+                const currentDate = dayjs();
+                return current && current.isAfter(currentDate, "day");
+              }}
+              defaultValue={dayjs()}
+              showToday
+              onChange={(date, dateString) => {
+                setDate(formatDateString(dateString));
+              }}
+            />
+          </div> */}
+          {selectWidget()}
           <div className="button-wrapper">
             <Space>
               <Button type="primary" size="middle" onClick={() => { setJurisdiction(selectedOption) }}>
@@ -485,7 +514,7 @@ const IndividualReport = (props: any) => {
       <Divider />
       <div>
         <>
-          <div className="main-wrapper"><IndividualReportMap jurisdiction={jurisdiction} name={name} projectName={projectName} allFeatures={attrProperties}/></div>
+          <div className="main-wrapper"><IndividualReportMap jurisdiction={jurisdiction} name={name} projectName={projectName} allFeatures={attrProperties} date={date}/></div>
         </>
       </div>
     </>

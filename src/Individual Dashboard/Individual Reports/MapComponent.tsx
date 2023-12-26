@@ -19,6 +19,7 @@ const IndividualReportMap = (props: any) => {
   const [attrValue, setAttrValue] = useState<any>(null);
   const [attributes, setAttributes] = useState();
   const [loading, setLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(true);
   const vectorRef = useRef<RLayerVector | any>(null);
   const mapRef = useRef<RMap>(null)
   const [features, setFeatures] = useState<any>();
@@ -26,8 +27,8 @@ const IndividualReportMap = (props: any) => {
   const serverUrl = window.__rDashboard__.serverUrl;
   const allIds = useRef<any[]>([]);
   const { project, userInfo, projectConceptModel } = useAppSelector((state) => state.reveloUserInfo);
-  const graphContainer = props.name === 'valuestatus' ? 'graph-table-wrapper' : 'graph-map-wrapper'
-  const container = props.name === 'valuestatus' ? 'table-wrapper' : 'map-wrapper'
+  const graphContainer = props.name === 'valuestatus' || "morningshift" || "afternoonshift" ? 'graph-table-wrapper' : 'graph-map-wrapper'
+  const container = props.name === 'valuestatus' || "morningshift" || "afternoonshift" ? 'table-wrapper' : 'map-wrapper'
 
   const columns = [
     {
@@ -110,13 +111,14 @@ const IndividualReportMap = (props: any) => {
     try {
       const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_${props.name.toLocaleLowerCase()}/_search`, {
         size: 1000,
-        "query": {
-          "dis_max": {
-            "queries": [
-              { "match_phrase": { jurisdictionName: getJtypeandJname()[0] } }
-            ]
-          }
-        }
+        query: {
+          bool: {
+            must: [
+              { match: { jurisdictionName: getJtypeandJname()[0] } },
+              // { match: { shiftdate: "2023-12-26" } },
+            ],
+          },
+        },
       })
       if (reportOutPut.data.error) {
         setLoading(false);
@@ -141,7 +143,7 @@ const IndividualReportMap = (props: any) => {
 
   const getEntityData = async (attributes: any) => {
     console.log(attributes)
-    setLoading(true)
+    setTableLoading(true)
     let payload: any[] = [];
     let jurisdictionType = props.jurisdiction?.type;
     let jurisdictionName = props.jurisdiction?.name;
@@ -185,29 +187,25 @@ const IndividualReportMap = (props: any) => {
               shiftDate: shiftDate
             })
           })
-
           console.log(payload)
           setProperties(payload)
           allIds.current = payload
           setFeatures(res.data.features);
+          setTableLoading(false)
         }
-        else{
+        else {
           console.log('Retrying...');
           (async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            await getEntityData(attributes); 
+            await getEntityData(attributes);
           })();
+          setTableLoading(false)
         }
-        // if (res.status === 400) {
-         
-        // }
 
-        setLoading(false)
       })
       .catch((err) => {
         console.log(err)
-
-        setLoading(false)
+        setTableLoading(false)
       })
   }
 
@@ -273,7 +271,7 @@ const IndividualReportMap = (props: any) => {
                     <></>
                   )}
                 </div>
-                {props.name === "valuestatus" ? (null) : (
+                {props.name === "valuestatus" || "morningshift" || "afternoonshift" ? (<></>) : (
                   <>
                     <RMap width={"100%"} height={"100%"} initial={{ center: center, zoom: 10 }} ref={mapRef}>
                       <ROSM />
@@ -310,17 +308,38 @@ const IndividualReportMap = (props: any) => {
               // overflowY: "auto"
 
             }}>
-              <Table
-                columns={columns}
-                // rowSelection={{
-                //   type: 'checkbox',
-                //   // onChange: handleRowSelection,
-                //   // selectedRowKeys: selectedUsers,
-                // }}
-                dataSource={properties}
-                scroll={{ y: 730 }}
-                pagination={false}
-              />
+              {tableLoading ? (<>
+
+                <div
+                  style={{
+                    marginTop:"20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    placeContent: "center",
+                    placeItems: "center",
+                    height: "inherit",
+                  }}
+                >
+                  <Spin tip="Loading" />
+                  <p>Fetching Data...</p>
+                </div>
+              </>) : (
+                <Table
+                  columns={columns}
+                  // rowSelection={{
+                  //   type: 'checkbox',
+                  //   // onChange: handleRowSelection,
+                  //   // selectedRowKeys: selectedUsers,
+                  // }}
+                  dataSource={properties}
+                  scroll={{ y: 730 }}
+                  pagination={false}
+                />
+
+              )}
+
+
+
             </div>
           </div>
         </>

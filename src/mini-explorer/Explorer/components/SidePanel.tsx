@@ -16,7 +16,7 @@ type Props = {
     date: any;
 }
 export const SidePanel = (props: Props) => {
-    console.log(props)
+    console.log(props.date)
     const { projectConceptModel } = useAppSelector(state => state.reveloUserInfo)
     const [indexes, setIndexes] = useState("")
     const [vendorid, setVendorId] = useState("")
@@ -47,11 +47,9 @@ export const SidePanel = (props: Props) => {
                 setBill(res.data.features)
                 setL1(false)
             }
-
         })).catch(((err) => {
             console.log(err)
             setL1(false)
-
         }))
     }
     useEffect(() => {

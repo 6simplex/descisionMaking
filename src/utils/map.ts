@@ -60,3 +60,16 @@ export function getStopSvgwithTextGreen(text: any) {
     </svg>`
   );
 }
+export function formatDateString(inputDateString:any){
+  const dateObject = new Date(inputDateString);
+  const formattedDateString = dateObject.toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+  });
+  return formattedDateString;
+};

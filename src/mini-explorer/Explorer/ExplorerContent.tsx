@@ -507,16 +507,14 @@ const ExplorerContent = () => {
       </div>
     </div>
     <div
-      className="main-dashBoard-wrapper1"
-    >
-
+      className="main-dashBoard-wrapper1" 
+      >
       {loading ? (
         <>
           <Spin tip="Loading..." style={{ display: "flex", flexDirection: "column", placeContent: "center", placeItems: "center" }} />
         </>
       ) : (
         <>
-
           <div className="chart-container1">
             <SidePanel
               unit={unitGeojson}
@@ -529,8 +527,6 @@ const ExplorerContent = () => {
     </div>
   </>
   )
-
-
 }
 
 export default ExplorerContent
