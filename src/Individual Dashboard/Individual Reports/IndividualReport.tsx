@@ -6,17 +6,21 @@ import './report.css';
 import IndividualReportMap from "./MapComponent";
 import { useAppSelector } from "../../Redux/store/store";
 import cytoscape, { EdgeDefinition, NodeDefinition } from "cytoscape";
+import axios from "axios";
 
 const IndividualReport = (props: any) => {
+  const serverUrl = window.__rDashboard__.serverUrl;
   const { name } = useParams();
   const { projectName } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [attrProperties, setattrProperties] = useState<any>();
   const [jurisdiction, setJurisdiction] = useState<any>();
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions } = useAppSelector((state) => state.reveloUserInfo);
+  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions ,projectConceptModel} = useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
@@ -182,7 +186,6 @@ const IndividualReport = (props: any) => {
     }
     return values;
   };
-
   const createEntitySelectorPanel = (value: any, obcmEntity: any) => {
     let options: any[] = [];
     let selectedValue = value;
@@ -236,20 +239,6 @@ const IndividualReport = (props: any) => {
 
     return options;
   };
-
-  // useEffect(()=>{
-  //   disabledComponents();
-  //   console.log(defaultvalueRef.current)
-  // }, [defaultvalueRef.current])
-  // const disabledComponents = ()=>{
-  //   if(defaultvalueRef){
-  //     const updatedDisabled: any = { ...disabledPanels };
-  //     updatedDisabled[defaultvalueRef.current] = true;
-  //     setDisabledPanels(updatedDisabled)
-  //      console.log(disabledPanels)
-  //      }
-  // }
-
   const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
@@ -348,8 +337,6 @@ const IndividualReport = (props: any) => {
       descendantValuesMap.current.set(childEntityName, values)
     }
   };
-
-
   const extractRecursively = (
     currentEntityNode: any,
     assignedEntityName: any,
@@ -402,6 +389,7 @@ const IndividualReport = (props: any) => {
     });
     return arras.map((node: any, index: any) => {
       const selectOption = createEntitySelectorPanel(selectedValues[node.name], node)
+      console.log(defaultvalueRef.current)
       return (
         <>
           <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
@@ -415,7 +403,7 @@ const IndividualReport = (props: any) => {
                 onChange={(e) => {
                   populateChildWidget(e, node.name, arras, index);
                 }}
-                disabled={(arras[index].name === userInfo.userInfo.jurisdictions[0].type)||( index > 0 && disabledPanels[arras[index - 1].name])}
+                disabled={(arras[index].name === defaultvalueRef.current)||( index > 0 && disabledPanels[arras[index - 1].name])}
                 // disabled={disabledPanels[node.name]}
               >
                 {selectOption?.map((elss: any) => {
@@ -432,6 +420,46 @@ const IndividualReport = (props: any) => {
       );
     });
   };
+  useEffect(()=>{
+    getEntityData()
+  },[])
+  const getEntityData = async () => {
+    // console.log(attributes)
+    setLoading(true)
+    let payload: any[] = [];
+    let jurisdictionType = props.jurisdiction?.type;
+    let jurisdictionName = props.jurisdiction?.name;
+    const jurisdiction: any = {};
+    if (jurisdictionType && jurisdictionName) {
+      jurisdiction[jurisdictionType] = jurisdictionName;
+    } else {
+      jurisdiction.country = "India";
+    }
+    // console.log(attributes)
+    await axios.get(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query?country=India`)
+      .then((res) => {
+        console.log(res.data)
+        res.data?.features.forEach((el: any) => {
+          payload.push({
+            shiftname: el.properties.shiftname,
+            status: el.properties.status,
+            blocksid: el.properties.blocksid,
+            shiftid: el.properties.shiftid,
+            zone:el.properties.zone,
+            // unit:el.properties.unit
+          })
+        })
+        console.log(payload)
+        setattrProperties(payload)
+        // allIds.current = payload
+        // setFeatures(res.data.features);
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.log(err)
+        setLoading(false)
+      })
+  }
   return (
     <>
       <div className='widget-wrapper'  >
@@ -449,7 +477,6 @@ const IndividualReport = (props: any) => {
             </Space>
           </div>
         </div>
-
         {/* <div ref={targetRef} className="button-refresh">
         <Button type="primary" onClick={() => { toPDF() }} icon={<DownloadOutlined />} />
         <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => { handleReset() }} icon={<RedoOutlined />} />
@@ -458,10 +485,9 @@ const IndividualReport = (props: any) => {
       <Divider />
       <div>
         <>
-          <div className="main-wrapper"><IndividualReportMap jurisdiction={jurisdiction} name={name} projectName={projectName} /></div>
+          <div className="main-wrapper"><IndividualReportMap jurisdiction={jurisdiction} name={name} projectName={projectName} allFeatures={attrProperties}/></div>
         </>
       </div>
-
     </>
   )
 }

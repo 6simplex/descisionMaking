@@ -246,6 +246,7 @@ const WrapperNMC = (props: Props) => {
               {!loading1 ? (
                 <>
                   <ReveloPie
+                  onClick={()=>{}}
                     data={pieChartData}
                     valueFieldName={["Clean", "Damaged", "Block", "Locked"]}
                     total={total}

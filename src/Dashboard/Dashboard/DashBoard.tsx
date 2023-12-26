@@ -28,6 +28,7 @@ const Dashboard = (props: Props) => {
     resolution: Resolution.MEDIUM,
     page: { orientation: "l", format: "A3" },
     method: "open",
+
   });
   props.targetRef(targetRef);
   const getAllReportOut = async () => {
@@ -50,13 +51,8 @@ const Dashboard = (props: Props) => {
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const {
-    obcmSnapShotDetails,
-    obcmSnapShot,
-    userInfo,
-    jurisdictions,
-    project,
-  } = useAppSelector((state) => state.reveloUserInfo);
+  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, project } =
+   useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
@@ -226,15 +222,13 @@ const Dashboard = (props: Props) => {
 
   const createEntitySelectorPanel = (value: any, obcmEntity: any) => {
     let options: any[] = [];
-    let selectedValue = value;
-
+    let selectedValue = value; 
     if (ancestorsMap.has(obcmEntity?.name) === true) {
-      var jurisdictionName = ancestorsMap.get(obcmEntity.name);
-      console.log(jurisdictionName);
-      if (jurisdictionName) {
-        defaultvalueRef.current = `${obcmEntity.name}`;
+      var jurisdictionName = ancestorsMap.get(obcmEntity.name);  
+      console.log(jurisdictionName)
+      if(jurisdictionName){
+        defaultvalueRef.current =`${obcmEntity.name}`
       }
-
       options = [
         {
           value: jurisdictionName,
@@ -260,11 +254,9 @@ const Dashboard = (props: Props) => {
           },
         ];
       }
-    } else {
-      options = extractValueOptionsFromObject(
-        immediateChildEntityNode.data().name,
-        ancestorsMap
-      );
+    }
+    else {
+      options = extractValueOptionsFromObject(immediateChildEntityNode.data().name, ancestorsMap);
     }
     selectedValue = jurisdictionName ? jurisdictionName : value;
     let existingSelectObject = widgetsMap.get(obcmEntity?.name);
@@ -277,16 +269,10 @@ const Dashboard = (props: Props) => {
       value: selectedValue,
     };
     widgetsMap.set(obcmEntity?.name, selectobject);
-
     return options;
   };
 
-  const populateChildWidget = (
-    value: any,
-    parentEntityName: any,
-    selectOptions: any,
-    index: any
-  ) => {
+  const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
     const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
       name: value === "all" ? previousSelectedValue : value,
@@ -349,8 +335,7 @@ const Dashboard = (props: Props) => {
       }
       if (!childEntity) {
         return;
-      }
-      console.log(disabledPanels);
+      }  
       let childEntityName = childEntity.name;
       let ancestorsMap = new Map();
       ancestorsMap.set(parentEntityName, parentEntityValue);
@@ -394,7 +379,6 @@ const Dashboard = (props: Props) => {
       descendantValuesMap.current.set(childEntityName, values);
     }
   };
-
   const extractRecursively = (
     currentEntityNode: any,
     assignedEntityName: any,
@@ -478,11 +462,7 @@ const Dashboard = (props: Props) => {
                 onChange={(e) => {
                   populateChildWidget(e, node.name, arras, index);
                 }}
-                disabled={
-                  arras[index].name ===
-                    userInfo.userInfo.jurisdictions[0].type ||
-                  (index > 0 && disabledPanels[arras[index - 1].name])
-                }
+                disabled={(arras[index].name ===  defaultvalueRef.current)||( index > 0 && disabledPanels[arras[index - 1].name])}
               >
                 {selectOption?.map((elss: any) => {
                   return (
@@ -500,7 +480,7 @@ const Dashboard = (props: Props) => {
       );
     });
   };
-
+  console.log(jurisdiction)
   return (
     <>
       <div className="widget-wrapper">
@@ -527,6 +507,7 @@ const Dashboard = (props: Props) => {
             </Space>
           </div>
         </div>
+
 
         <div className="button-refresh">
           <Button

@@ -1,22 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { ResponsiveBar } from "@nivo/bar";
-
 type Props = {
   data: any;
   valueFieldName: any;
   xAxis: string;
   yAxis: string
 }
-
 type ChildProps ={
   onClick: (data: any) => void;
 }
 const ReveloBarGraph: React.FC<Props & ChildProps> = (props) => {
-
   const handleClick = (data:any) => {
    props.onClick(data);
+   console.log(data)
   };
+  console.log(props.data)
   const createDataBarGraph = () => {
     const barGraph: any[] = []
     const result: any[] = [];
@@ -31,12 +29,14 @@ const ReveloBarGraph: React.FC<Props & ChildProps> = (props) => {
         result.push(matchingValues);
       }
     });
+    const label = autoCaptialize(props.xAxis);
     result.forEach((element) => {
-      Object.keys(element).forEach((val) => {
-        
+      Object.keys(element).forEach((val) => {    
         barGraph.push({
-          [props.xAxis]: autoCaptialize(val),
-          [val]: element[val]
+          [label]: autoCaptialize(val),
+          [val]: element[val],
+          indexValue:autoCaptialize(val)
+
         })
       })
     })
@@ -124,8 +124,6 @@ console.log(createDataBarGraph())
     //     ]
     //   },
     // ]}
-
-
     />
   );
 };

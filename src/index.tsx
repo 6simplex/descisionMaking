@@ -10,7 +10,6 @@ async function init() {
     .then((result) => {
       Object.keys(result).forEach((serviceName) => {
         // @ts-ignore
-
         window.__rDashboard__[serviceName] = result[serviceName];
       });
     });

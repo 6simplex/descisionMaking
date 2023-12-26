@@ -67,6 +67,7 @@ const PaymentBox = (props: Props) => {
                     </div>
                     <div style={{ height: "inherit" }}>
                       <ReveloPie
+                       onClick={() => {}}
                         arcLinkLabels={true}
                         data={[
                           {

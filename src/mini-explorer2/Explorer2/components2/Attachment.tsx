@@ -48,8 +48,9 @@ const Attachment = (props: Props) => {
         props.shifts.filter((shift: any) => shift.shiftName === "Morning")[0]
           .shiftId
       );
-    }
+    }  
   }, [props.shifts]);
+  console.log(downloadImages)
   const downloadImage = () => {
     let payload: any = [];
     properties.forEach(async (properties: any) => {
@@ -120,20 +121,22 @@ const Attachment = (props: Props) => {
                   pagingDotsStyle: { display: "none" },
                 }}
               >
-                {properties.map((properties: any) => {
+                {properties.map((property: any) => {
                   return (
                     <>
-                      <Image
+                 
+                    <Image
                         onClick={() => {
                           downloadImage();
                         }}
                         preview={false}
                         style={{ objectFit: "contain" }}
-                        src={`data:image/png;base64,${properties.properties.thumbnailastext}`}
-                        alt={properties.properties.name}
+                        src={`data:image/png;base64,${property.properties.thumbnailastext}`}
+                        alt={property.properties.name}
                         width={"100%"}
                         height={"200px"}
                       />
+               
                       <div>
                         <div
                           style={{
@@ -145,7 +148,7 @@ const Attachment = (props: Props) => {
                         >
                           <Typography>Name:</Typography>
                           <Typography style={{ fontWeight: "bold" }}>
-                            {properties.properties.name}
+                            {property.properties.name}
                           </Typography>
                         </div>
                         <div
@@ -158,7 +161,7 @@ const Attachment = (props: Props) => {
                         >
                           <Typography>User Name:</Typography>
                           <Typography style={{ fontWeight: "bold" }}>
-                            {properties.properties.username}
+                            {property.properties.username}
                           </Typography>
                         </div>
                         <div
@@ -171,7 +174,7 @@ const Attachment = (props: Props) => {
                         >
                           <Typography>Date & Time</Typography>
                           <Typography style={{ fontWeight: "bold" }}>
-                            {properties.properties.savedate}
+                            {property.properties.savedate}
                           </Typography>
                         </div>
                       </div>

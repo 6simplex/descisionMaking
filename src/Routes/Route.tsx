@@ -1,5 +1,4 @@
 import { Suspense, lazy } from "react";
-
 const IndividualReportIndex = lazy(() => import("../Individual Dashboard/IndividualReportIndex"));
 const RDashBoard = lazy(() => import("../Dashboard/RDashBoard"));
 const App = lazy(() => import("../App"));

@@ -5,7 +5,6 @@ import ReveloHeader from "../Components/Header/ReveloHeader"
 import { Layout, Space } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import Dashboard from "./Dashboard/DashBoard";
-
 const layoutStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -14,9 +13,7 @@ const contentStyle: React.CSSProperties = {
     flex: "1 1 auto",
     backgroundColor: "white",
     overflow: "hidden",
-
 };
-
 const RDashBoard = () => {
     const [download, setDownLoad] = useState()
     const targetRef = (data: any) => {
@@ -51,5 +48,4 @@ const RDashBoard = () => {
         </>
     )
 }
-
 export default RDashBoard

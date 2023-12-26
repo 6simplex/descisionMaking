@@ -91,10 +91,9 @@ const Wrapper = (props: Props) => {
 
   useEffect(() => {
     getReportPutOut();
- 
-
+  console.log(reportOutPuts)
   }, [refresh, props.jurisdiction]);
-
+  
   return (
     <>
       <div className="main-wrapper">
@@ -228,6 +227,7 @@ const Wrapper = (props: Props) => {
                   {props.outFields.type === "pieChart" ? (
                     <>
                       <ReveloPie
+                       onClick={() => { }}
                         data={reportOutPuts}
                         valueFieldName={
                           props.outFields.widgetInfo.valueFieldName

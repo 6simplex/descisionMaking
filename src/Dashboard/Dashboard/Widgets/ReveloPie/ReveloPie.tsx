@@ -8,9 +8,17 @@ type Props = {
   bottom?: number;
   total?:number
 };
-
-const ReveloPie = (props: Props) => {
-  
+type ChildProps ={
+  onClick: (data: any) => void;
+};
+const ReveloPie: React.FC<Props & ChildProps> = (props) => {
+  const handleClick = (data:any) => {
+    props.onClick(data);
+    console.log(data)
+   };
+   const autoCaptialize = (str: any): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   const createDataForPie = () => {
     const pieData: any[] = [];
     const result: any[] = [];
@@ -29,8 +37,9 @@ const ReveloPie = (props: Props) => {
       Object.keys(element).forEach((val) => {
         pieData.push({
           id: upperCase(val),
-          label: upperCase(val),
+          label: autoCaptialize(val),
           value: element[val],
+          indexValue:autoCaptialize(val)
         });
       });
     });
@@ -59,6 +68,7 @@ const ReveloPie = (props: Props) => {
     <ResponsivePie
       data={createDataForPie()}
       enableArcLinkLabels={props.arcLinkLabels === false ? false : true}
+      onClick={(data)=>{handleClick(data)}}
       margin={{
         top: 40,
         right: 10,

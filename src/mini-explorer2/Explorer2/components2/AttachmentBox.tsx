@@ -12,7 +12,6 @@ export const AttachmentBox = (props: Props) => {
     const [thumbnail, setThumbnail] = useState([])
     const [loading, setLoading] = useState(true)
     const [loading1, setLoading1] = useState(true)
-
     const [modal2Open, setModal2Open] = useState(false);
     const [downloadedImage, setDownloadedImage] = useState<any>("")
     const { projectConceptModel } = useAppSelector(state => state.reveloUserInfo)

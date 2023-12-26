@@ -54,7 +54,6 @@ export const SidePanel = (props: Props) => {
 
         }))
     }
-
     useEffect(() => {
         if (vendorid) {
             getBilling(vendorid)
