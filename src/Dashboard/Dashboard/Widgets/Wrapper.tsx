@@ -22,7 +22,6 @@ type Props = {
 };
 
 const Wrapper = (props: Props) => {
-  console.log(props.name)
   const { projectName } = useParams();
   const { project, userInfo } = useAppSelector((state) => state.reveloUserInfo);
   const [reportOutPuts, setReportOutPuts] = useState<any[]>([]);

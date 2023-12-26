@@ -10,6 +10,8 @@ type Props = {
   shifts: any[];
 };
 const Attachment = (props: Props) => {
+  console.log(props.shifts);
+
   const [photoIndex, setPhotoIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const [downloadImages, setDownloadedImages] = useState([]);
@@ -41,13 +43,10 @@ const Attachment = (props: Props) => {
       });
   };
   useEffect(() => {
-    setValue("Morning");
+    setValue(props.shifts[0].shiftName);
     if (props.shifts.length > 0) {
-      getAttachmentMetaData(
-        props.shifts.filter((shift: any) => shift.shiftName === "Morning")[0]
-          .shiftId
-      );
-    }  
+      getAttachmentMetaData(props.shifts[0].shiftId);
+    }
   }, [props.shifts]);
   console.log(downloadImages)
   const downloadImage = () => {
@@ -168,7 +167,9 @@ const Attachment = (props: Props) => {
                           }}
                         >
                           <Typography>Name:</Typography>
-                          <Typography style={{ fontWeight: "bold"  ,marginLeft:"2px"}}>
+                          <Typography
+                            style={{ fontWeight: "bold", marginLeft: "2px" }}
+                          >
                             {properties.properties.name}
                           </Typography>
                         </div>
@@ -181,7 +182,9 @@ const Attachment = (props: Props) => {
                           }}
                         >
                           <Typography>User Name:</Typography>
-                          <Typography style={{ fontWeight: "bold" ,marginLeft:"2px" }}>
+                          <Typography
+                            style={{ fontWeight: "bold", marginLeft: "2px" }}
+                          >
                             {properties.properties.username}
                           </Typography>
                         </div>
@@ -194,7 +197,9 @@ const Attachment = (props: Props) => {
                           }}
                         >
                           <Typography>Date & Time:</Typography>
-                          <Typography style={{ fontWeight: "bold" ,marginLeft:"2px"}}>
+                          <Typography
+                            style={{ fontWeight: "bold", marginLeft: "2px" }}
+                          >
                             {properties.properties.savedate}
                           </Typography>
                         </div>

@@ -63,6 +63,6 @@
   height: 98%;
   min-height: 98%;
   display: grid;
-  grid-template-columns: 17%  15% 67.5% ;
+  grid-template-columns: 17% 14% 68.5%;
   gap: 5px;
 }

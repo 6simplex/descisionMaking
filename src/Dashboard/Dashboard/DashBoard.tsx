@@ -17,6 +17,8 @@ import { usePDF, Resolution } from "react-to-pdf";
 import Wrapper from "./Widgets/Wrapper";
 import RDashBoard from "../RDashBoard";
 import WrapperNMC from "./Widgets/WrapperNMC";
+import { error } from "console";
+import WrapperNMC1 from "./Widgets/WrapperNMC1";
 type Props = {
   targetRef: any;
 };
@@ -36,6 +38,7 @@ const Dashboard = (props: Props) => {
     const reports = await fetchData(
       `${window.__rDashboard__.serverUrl}/surveys/${project.name}/reports`
     );
+
     if (reports.error) {
       return message.error("Something went Wrong");
     }
@@ -43,7 +46,9 @@ const Dashboard = (props: Props) => {
     setLoading(false);
   };
   useEffect(() => {
-    getAllReportOut();
+    if (project.name) {
+      getAllReportOut();
+    }
   }, []);
   const [jurisdiction, setJurisdiction] = useState<any>();
   const [selectedValues, setSelectedValues] = useState<any>({});
@@ -224,10 +229,9 @@ const Dashboard = (props: Props) => {
     let options: any[] = [];
     let selectedValue = value; 
     if (ancestorsMap.has(obcmEntity?.name) === true) {
-      var jurisdictionName = ancestorsMap.get(obcmEntity.name);  
-      console.log(jurisdictionName)
-      if(jurisdictionName){
-        defaultvalueRef.current =`${obcmEntity.name}`
+      var jurisdictionName = ancestorsMap.get(obcmEntity.name);
+      if (jurisdictionName) {
+        defaultvalueRef.current = `${obcmEntity.name}`;
       }
       options = [
         {
@@ -566,6 +570,13 @@ const Dashboard = (props: Props) => {
                 jurisdiction={jurisdiction}
                 outFields={[]}
               />
+               <WrapperNMC1
+                name={"Vender Wise Payment"}
+                label={"Vender Wise Payment"}
+                jurisdiction={jurisdiction}
+                outFields={[]}
+              />
+              
             </div>
           </>
         )}

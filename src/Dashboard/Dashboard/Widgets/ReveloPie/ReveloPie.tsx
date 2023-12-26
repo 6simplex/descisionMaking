@@ -99,7 +99,7 @@ const ReveloPie: React.FC<Props & ChildProps> = (props) => {
           100
         ).toFixed(2)}%`
       }
-      arcLinkLabel={(e) => `${upperCase(e.id)}`}
+      arcLinkLabel={(e) => `${upperCase(e.id)} (${e.value})`}
       arcLinkLabelsSkipAngle={10}
       arcLinkLabelsTextColor="#333333"
       arcLinkLabelsThickness={2}

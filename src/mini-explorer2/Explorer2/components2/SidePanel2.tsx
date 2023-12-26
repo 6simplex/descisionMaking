@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../../Redux/store/store";
-import { Checkbox, List, Spin, Typography, message } from "antd";
+import { Checkbox, List, Spin, Table, Typography, message } from "antd";
 import { fromLonLat } from "ol/proj";
 import "ol/ol.css";
 import { RFeature, RLayerVector, RMap, ROSM } from "rlayers";
@@ -22,6 +22,8 @@ export const SidePanel2 = (props: Props) => {
   const { projectConceptModel, obcmSnapShotDetails, userInfo } = useAppSelector(
     (state) => state.reveloUserInfo
   );
+  const [datasource, setDataSource] = useState<any>({});
+
   const [unitDetails, setUnitDetails] = useState<any>({});
   const [indexes, setIndexes] = useState("");
   const [indexesBlock, setIndexesBlock] = useState("");
@@ -127,7 +129,7 @@ export const SidePanel2 = (props: Props) => {
       setBill([]);
     }
   }, [props.loading]);
-
+  console.log(datasource);
   return (
     <>
       <div
@@ -175,6 +177,17 @@ export const SidePanel2 = (props: Props) => {
                   getReports(item.properties.unitid);
                   getBlocks(item.properties.unitid);
                   setUnitDetails(item.properties);
+                  let d1: any = {};
+                  createEntitySequence(
+                    obcmSnapShotDetails.entities,
+                    obcmSnapShotDetails.relations
+                  ).forEach((el: any, index: number) => {
+                    if (el.name === "ward") {
+                    } else {
+                      d1[el.name] = item.properties[el.name];
+                    }
+                  });
+                  setDataSource({ ...d1, name: item.properties.unitname });
                   setShiftIds([]);
                   unitVecRef.current.context.map
                     .getLayers()
@@ -269,8 +282,36 @@ export const SidePanel2 = (props: Props) => {
                 gridTemplateRows: "30% 70%",
               }}
             >
-              <div className="block-1" style={{ height: "inherit" }}>
-                <div
+              <div
+                className="block-1"
+                style={{ height: "inherit", padding: "2px" }}
+              >
+                <Table
+                  size="small"
+                  bordered
+                  // style={{ width: "10rem" }}
+                  pagination={false}
+                  columns={[
+                    {
+                      title: "Unit Name",
+                      dataIndex: "name",
+                      key: "name",
+                    },
+                   
+                    {
+                      title: "City",
+                      dataIndex: "city",
+                      key: "city",
+                    },
+                    {
+                      title: "Zone",
+                      dataIndex: "zone",
+                      key: "zone",
+                    },
+                  ]}
+                  dataSource={[datasource]}
+                />
+                {/* <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -296,9 +337,6 @@ export const SidePanel2 = (props: Props) => {
                     placeContent: "center",
                   }}
                 >
-                  {/* <Typography style={{ fontSize: "125%" }}>
-                    Jurisdictions:
-                  </Typography> */}
                   <div
                     style={{
                       display: "flex",
@@ -314,7 +352,9 @@ export const SidePanel2 = (props: Props) => {
                     ).map((el: any, index: number) => {
                       return (
                         <>
-                          {el.name === "state" || el.name === "country" ? (
+                          {el.name === "state" ||
+                          el.name === "country" ||
+                          el.name === "ward" ? (
                             <></>
                           ) : (
                             <>
@@ -341,7 +381,7 @@ export const SidePanel2 = (props: Props) => {
                       );
                     })}
                   </div>
-                </div>
+                </div> */}
               </div>
               <div
                 className="block-2"
@@ -372,9 +412,6 @@ export const SidePanel2 = (props: Props) => {
                         {indexesBlock}
                       </Typography>
                     </div>
-                    {/* <Typography style={{ fontSize: "150%" }}>
-                      Shifts:
-                    </Typography> */}
                     {shiftIds.length === 0 ? (
                       <>
                         <div
