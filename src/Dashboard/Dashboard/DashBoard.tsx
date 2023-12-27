@@ -571,8 +571,8 @@ const Dashboard = (props: Props) => {
                 outFields={[]}
               />
                <WrapperNMC1
-                name={"Vender Wise Payment"}
-                label={"Vender Wise Payment"}
+                name={"Vendoor Wise Payment"}
+                label={"Vendor Wise Payment"}
                 jurisdiction={jurisdiction}
                 outFields={[]}
               />

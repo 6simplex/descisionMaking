@@ -179,11 +179,7 @@ const WrapperNMC1 = (props: Props) => {
             <div className="header-buttons-wrapper">
               <Space>
                 <Link
-                  to={
-                    props.outFields.type === "Table"
-                      ? `/project/${projectName}/explore`
-                      : `/project/${projectName}/stats/${props.name}`
-                  }
+                  to={`/project/${projectName}/explore`}
                   target="_blank"
                   state={{ allProps: props }}
                 >

@@ -160,11 +160,7 @@ const WrapperNMC = (props: Props) => {
             <div className="header-buttons-wrapper">
               <Space>
                 <Link
-                  to={
-                    props.outFields.type === "Table"
-                      ? `/project/${projectName}/explore`
-                      : `/project/${projectName}/stats/${props.name}`
-                  }
+                  to={`/project/${projectName}/explore`}
                   target="_blank"
                   state={{ allProps: props }}
                 >
@@ -205,18 +201,18 @@ const WrapperNMC = (props: Props) => {
                 showToday
                 onChange={(date, dateString) => {
                   setDate(new Date(dateString).toISOString().split("T")[0]);
-                  setValue1(unitList[0])
+                  setValue1(unitList[0]);
                 }}
               />
               <Select
-              value={value1}
+                value={value1}
                 showSearch
                 defaultValue={unitList[0]}
                 style={{ width: "10rem" }}
                 onChange={(e) => {
                   getReports(e);
-                  setValue("Morning")
-                  setValue1(e)
+                  setValue("Morning");
+                  setValue1(e);
                 }}
               >
                 {unitList.map((el: any) => {
@@ -234,7 +230,7 @@ const WrapperNMC = (props: Props) => {
                 onChange={(e) => {
                   setPieChartData([pieData[0][e]]);
                   setTotal(pieData[0][e].Total);
-                  setValue(e)
+                  setValue(e);
                 }}
               >
                 <Select.Option value={"Morning"}>Morning</Select.Option>
@@ -246,7 +242,7 @@ const WrapperNMC = (props: Props) => {
               {!loading1 ? (
                 <>
                   <ReveloPie
-                  onClick={()=>{}}
+                    onClick={() => {}}
                     data={pieChartData}
                     valueFieldName={["Clean", "Damaged", "Block", "Locked"]}
                     total={total}
