@@ -86,10 +86,7 @@ const ReveloBarGraph: React.FC<Props & ChildProps> = (props) => {
       }}
       labelSkipWidth={12}
       labelSkipHeight={12}
-      labelTextColor={{
-        from: "color",
-        modifiers: [["darker", 1.6]],
-      }}
+      labelTextColor="black"
       tooltip={({ id, value, color }) => (
         <div
           style={{

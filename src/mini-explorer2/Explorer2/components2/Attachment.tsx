@@ -8,16 +8,16 @@ import "react-image-lightbox/style.css";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 type Props = {
   shifts: any[];
+  shiftType: any;
 };
 const Attachment = (props: Props) => {
-  console.log(props.shifts);
-
   const [photoIndex, setPhotoIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const [downloadImages, setDownloadedImages] = useState([]);
   const [loadComplete, setLoadComplete] = useState(true);
   const [properties, setProperties] = useState([]);
   const [value, setValue] = useState<string | number>("Morning");
+  const [status, setStatus] = useState<any>("");
   const { projectConceptModel } = useAppSelector(
     (state) => state.reveloUserInfo
   );
@@ -44,11 +44,12 @@ const Attachment = (props: Props) => {
   };
   useEffect(() => {
     setValue(props.shifts[0].shiftName);
+    props.shiftType(props.shifts[0].shiftName);
     if (props.shifts.length > 0) {
       getAttachmentMetaData(props.shifts[0].shiftId);
+      setStatus(props.shifts[0].shiftStatus);
     }
   }, [props.shifts]);
-  console.log(downloadImages)
   const downloadImage = () => {
     let payload: any = [];
     properties.forEach(async (properties: any) => {
@@ -80,16 +81,6 @@ const Attachment = (props: Props) => {
   return (
     <>
       <div
-        style={{ display: "flex", flexDirection: "row", placeItems: "center" }}
-      >
-        <Typography style={{ fontSize: "150%" }}>Shift:</Typography>
-        <Typography
-          style={{ fontSize: "150%", color: "#0075ea", marginLeft: "5px" }}
-        >
-          {value}
-        </Typography>
-      </div>
-      <div
         style={{
           display: "flex",
           flexDirection: "column",
@@ -102,6 +93,7 @@ const Attachment = (props: Props) => {
           value={value}
           onChange={(e) => {
             setValue(e);
+            props.shiftType(e);
             if (
               props.shifts.filter((shift: any) => shift.shiftName === e)
                 .length > 0
@@ -109,6 +101,10 @@ const Attachment = (props: Props) => {
               getAttachmentMetaData(
                 props.shifts.filter((shift: any) => shift.shiftName === e)[0]
                   .shiftId
+              );
+              setStatus(
+                props.shifts.filter((shift: any) => shift.shiftName === e)[0]
+                  .shiftStatus
               );
             } else {
               setProperties([]);
@@ -129,7 +125,8 @@ const Attachment = (props: Props) => {
                   nextButtonText: (
                     <>
                       <ArrowRightOutlined />
-                    </>),
+                    </>
+                  ),
                   prevButtonText: (
                     <>
                       <ArrowLeftOutlined />
@@ -140,8 +137,8 @@ const Attachment = (props: Props) => {
               >
                 {properties.map((properties: any) => {
                   return (
-                    <>     
-                    <Image
+                    <>
+                      <Image
                         onClick={() => {
                           downloadImage();
                         }}
@@ -201,6 +198,51 @@ const Attachment = (props: Props) => {
                             style={{ fontWeight: "bold", marginLeft: "2px" }}
                           >
                             {properties.properties.savedate}
+                          </Typography>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            placeContent: "center",
+                            placeItems: "center",
+                          }}
+                        >
+                          <Typography>Status:</Typography>
+                          <Typography
+                            style={{ fontWeight: "bold", marginLeft: "2px" }}
+                          >
+                            {status}
+                          </Typography>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            placeContent: "center",
+                            placeItems: "center",
+                          }}
+                        >
+                          <Typography>Latitude:</Typography>
+                          <Typography
+                            style={{ fontWeight: "bold", marginLeft: "2px" }}
+                          >
+                            {properties.properties.lat}
+                          </Typography>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            placeContent: "center",
+                            placeItems: "center",
+                          }}
+                        >
+                          <Typography>Longitude:</Typography>
+                          <Typography
+                            style={{ fontWeight: "bold", marginLeft: "2px" }}
+                          >
+                            {properties.properties.lng}
                           </Typography>
                         </div>
                       </div>

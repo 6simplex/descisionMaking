@@ -200,7 +200,7 @@ const WrapperNMC1 = (props: Props) => {
               </Space>
             </div>
           </div>
-          <div style={{ marginTop: "2px", height: "inherit" }}>
+          <div style={{ marginTop: "8px", height: "inherit" }}>
             <div
               style={{
                 display: "flex",

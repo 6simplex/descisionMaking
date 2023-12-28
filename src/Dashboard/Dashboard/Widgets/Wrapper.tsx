@@ -47,7 +47,7 @@ const Wrapper = (props: Props) => {
           userInfo.userInfo.jurisdictions[0]?.type,
         ];
       } else if (props.jurisdiction) {
-        return ([props.jurisdiction.name, props.jurisdiction.type]);
+        return [props.jurisdiction.name, props.jurisdiction.type];
       } else {
         return [
           userInfo.userInfo.jurisdictions[0]?.name,
@@ -55,21 +55,28 @@ const Wrapper = (props: Props) => {
         ];
       }
     };
-    
-    let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
+
+    let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo
+      .isSSLEnabled
+      ? "https"
+      : "http";
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {
-      const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_${props.name.toLocaleLowerCase()}/_search`, {
-        size: 10000,
-        "query": {
-          "dis_max": {
-            "queries": [
-
-              { "match_phrase": { jurisdictionName: getJtypeandJname()[0] } }
-            ]
-          }
+      const reportOutPut = await axios.post(
+        `${protocol}://${domain}/report_${
+          project.name
+        }_${props.name.toLocaleLowerCase()}/_search`,
+        {
+          size: 10000,
+          query: {
+            dis_max: {
+              queries: [
+                { match_phrase: { jurisdictionName: getJtypeandJname()[0] } },
+              ],
+            },
+          },
         }
-      })
+      );
       if (reportOutPut.data.error) {
         setLoading(false);
         return message.error("Something went Wrong");
@@ -77,22 +84,20 @@ const Wrapper = (props: Props) => {
       reportOutPut.data.hits.hits.forEach((outPut: any) => {
         payload.push(outPut._source);
       });
-
+      console.log(props.name, payload);
       setReportOutPuts(payload);
       setLoading(false);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setLoading(false);
-
     }
-
   };
 
   useEffect(() => {
     getReportPutOut();
-  console.log(reportOutPuts)
+    console.log(reportOutPuts);
   }, [refresh, props.jurisdiction]);
-  
+
   return (
     <>
       <div className="main-wrapper">
@@ -119,14 +124,13 @@ const Wrapper = (props: Props) => {
                 <Space>
                   <Link
                     to={
-                      props.outFields.type === "Table" ?
-                        `/project/${projectName}/explore`
+                      props.outFields.type === "Table"
+                        ? `/project/${projectName}/explore`
                         : `/project/${projectName}/stats/${props.name}`
                     }
                     target="_blank"
                     state={{ allProps: props }}
                   >
-
                     <Button size="small" icon={<FullscreenOutlined />} />
                   </Link>
                   {/* <Button
@@ -194,7 +198,7 @@ const Wrapper = (props: Props) => {
                                                     }
 
                                                     {reportOutPuts[0][col] ===
-                                                      undefined
+                                                    undefined
                                                       ? ""
                                                       : reportOutPuts.length}
                                                     {
@@ -226,7 +230,7 @@ const Wrapper = (props: Props) => {
                   {props.outFields.type === "pieChart" ? (
                     <>
                       <ReveloPie
-                       onClick={() => { }}
+                        onClick={() => {}}
                         data={reportOutPuts}
                         valueFieldName={
                           props.outFields.widgetInfo.valueFieldName
@@ -239,7 +243,7 @@ const Wrapper = (props: Props) => {
                   {props.outFields.type === "barGraph" ? (
                     <>
                       <ReveloBarGraph
-                        onClick={()=>{}}
+                        onClick={() => {}}
                         data={reportOutPuts}
                         valueFieldName={
                           props.outFields.widgetInfo.valueFieldName
@@ -262,7 +266,15 @@ const Wrapper = (props: Props) => {
               </>
             ) : (
               <>
-                <div className="graph-class" style={{ display: "flex", flexDirection: "column", placeItems: "center", placeContent: "center" }}>
+                <div
+                  className="graph-class"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    placeItems: "center",
+                    placeContent: "center",
+                  }}
+                >
                   <Typography>No Data to Display</Typography>
                 </div>
               </>
@@ -275,4 +287,3 @@ const Wrapper = (props: Props) => {
 };
 
 export default Wrapper;
-

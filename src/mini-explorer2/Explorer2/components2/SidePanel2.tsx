@@ -24,7 +24,6 @@ export const SidePanel2 = (props: Props) => {
   );
   const [datasource, setDataSource] = useState<any>({});
 
-  const [unitDetails, setUnitDetails] = useState<any>({});
   const [indexes, setIndexes] = useState("");
   const [indexesBlock, setIndexesBlock] = useState("");
   const [shiftIds, setShiftIds] = useState([]);
@@ -49,6 +48,12 @@ export const SidePanel2 = (props: Props) => {
         console.log(err);
         setLoading(false);
       });
+  };
+  const shiftType = (data: any) => {
+    setDataSource({
+      ...datasource,
+      shift: data,
+    });
   };
 
   const getReports = async (id: string) => {
@@ -125,11 +130,10 @@ export const SidePanel2 = (props: Props) => {
       setBlocks([]);
       setIndexes("");
       setIndexesBlock("");
-      setUnitDetails({});
       setBill([]);
     }
   }, [props.loading]);
-  console.log(datasource);
+
   return (
     <>
       <div
@@ -176,7 +180,6 @@ export const SidePanel2 = (props: Props) => {
                   setIndexesBlock("");
                   getReports(item.properties.unitid);
                   getBlocks(item.properties.unitid);
-                  setUnitDetails(item.properties);
                   let d1: any = {};
                   createEntitySequence(
                     obcmSnapShotDetails.entities,
@@ -187,7 +190,7 @@ export const SidePanel2 = (props: Props) => {
                       d1[el.name] = item.properties[el.name];
                     }
                   });
-                  setDataSource({ ...d1, name: item.properties.unitname });
+                  setDataSource({ ...d1 });
                   setShiftIds([]);
                   unitVecRef.current.context.map
                     .getLayers()
@@ -256,6 +259,10 @@ export const SidePanel2 = (props: Props) => {
                   onChange={(e) => {
                     setIndexesBlock(item.properties.blocknumber);
                     checkBlockIfHaveData(item.properties.blocksid);
+                    setDataSource({
+                      ...datasource,
+                      block: item.properties.blocknumber,
+                    });
                   }}
                 />
                 <Typography.Text>{item.properties.blocknumber}</Typography.Text>
@@ -279,109 +286,61 @@ export const SidePanel2 = (props: Props) => {
                 width: "100%",
                 minHeight: "50%",
                 display: "grid",
-                gridTemplateRows: "30% 70%",
+                gridTemplateRows: "15% 85%",
               }}
             >
-              <div
-                className="block-1"
-                style={{ height: "inherit", padding: "2px" }}
-              >
+              <div className="block-1" style={{ height: "inherit" }}>
                 <Table
                   size="small"
                   bordered
-                  // style={{ width: "10rem" }}
                   pagination={false}
                   columns={[
-                    {
-                      title: "Unit Name",
-                      dataIndex: "name",
-                      key: "name",
-                    },
-                   
-                    {
-                      title: "City",
-                      dataIndex: "city",
-                      key: "city",
-                    },
                     {
                       title: "Zone",
                       dataIndex: "zone",
                       key: "zone",
                     },
+                    {
+                      title: "Block",
+                      dataIndex: "block",
+                      key: "block",
+                      render: (_: any, record: any) => (
+                        <Typography
+                          style={{
+                            color:
+                              record.block === "" || record.block === undefined
+                                ? "gray"
+                                : "",
+                          }}
+                        >
+                          {record.block === "" || record.block === undefined
+                            ? "Select Block"
+                            : record.block}
+                        </Typography>
+                      ),
+                    },
+                    {
+                      title: "Shift",
+                      dataIndex: "shift",
+                      key: "shift",
+                      render: (_: any, record: any) => (
+                        <Typography
+                          style={{
+                            color:
+                              record.block === "" || record.block === undefined
+                                ? "gray"
+                                : "",
+                          }}
+                        >
+                          {record.shift === "" || record.shift === undefined
+                            ? "Select Block"
+                            : record.shift}
+                        </Typography>
+                      ),
+                    },
                   ]}
                   dataSource={[datasource]}
                 />
-                {/* <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    placeItems: "center",
-                    placeContent: "flex-start",
-                  }}
-                >
-                  <Typography style={{ fontSize: "125%" }}>Unit:</Typography>
-                  <Typography
-                    style={{
-                      color: "#0075ea",
-                      fontSize: "125%",
-                    }}
-                  >
-                    {indexes}
-                  </Typography>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    placeItems: "center",
-                    placeContent: "center",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      width: "100%",
-                      flexDirection: "column",
-                      placeItems: "center",
-                      placeContent: "center",
-                    }}
-                  >
-                    {createEntitySequence(
-                      obcmSnapShotDetails.entities,
-                      obcmSnapShotDetails.relations
-                    ).map((el: any, index: number) => {
-                      return (
-                        <>
-                          {el.name === "state" ||
-                          el.name === "country" ||
-                          el.name === "ward" ? (
-                            <></>
-                          ) : (
-                            <>
-                              <Typography
-                                style={{
-                                  fontSize: "110%",
-                                  marginRight: "10px",
-                                }}
-                              >
-                                {el.label}:
-                              </Typography>
-                              <Typography
-                                style={{
-                                  fontSize: "110%",
-                                  marginRight: "10px",
-                                  color: "#0075ea",
-                                }}
-                              >
-                                {unitDetails[el.name]}
-                              </Typography>
-                            </>
-                          )}
-                        </>
-                      );
-                    })}
-                  </div>
-                </div> */}
               </div>
               <div
                 className="block-2"
@@ -392,7 +351,7 @@ export const SidePanel2 = (props: Props) => {
               >
                 {indexesBlock ? (
                   <>
-                    <div
+                    {/* <div
                       style={{
                         display: "flex",
                         flexDirection: "row",
@@ -411,7 +370,7 @@ export const SidePanel2 = (props: Props) => {
                       >
                         {indexesBlock}
                       </Typography>
-                    </div>
+                    </div> */}
                     {shiftIds.length === 0 ? (
                       <>
                         <div
@@ -433,7 +392,7 @@ export const SidePanel2 = (props: Props) => {
                     ) : (
                       <>
                         {" "}
-                        <Attachment shifts={shiftIds} />
+                        <Attachment shifts={shiftIds} shiftType={shiftType} />
                       </>
                     )}
                   </>
