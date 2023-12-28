@@ -1,6 +1,6 @@
 
 import { useParams } from "react-router-dom";
-import React, {useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, DatePicker, Divider, Select, Space, Typography } from "antd";
 import './report.css';
 import IndividualReportMap from "./MapComponent";
@@ -9,6 +9,10 @@ import cytoscape, { EdgeDefinition, NodeDefinition } from "cytoscape";
 import axios from "axios";
 import dayjs from "dayjs";
 import { formatDateString } from "../../utils/map";
+import exportFromJSON from "export-from-json";
+import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
+import { getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
+import { Resolution, usePDF } from "react-to-pdf";
 
 const IndividualReport = (props: any) => {
   const serverUrl = window.__rDashboard__.serverUrl;
@@ -17,13 +21,22 @@ const IndividualReport = (props: any) => {
   const [loading, setLoading] = useState(true);
   const [attrProperties, setattrProperties] = useState<any>();
   const [jurisdiction, setJurisdiction] = useState<any>();
+  const [downloadData, setDownloadData] = useState<any>();
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [date, setDate] = useState<any>({});
+  const [payload, setPayload] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions ,projectConceptModel} = useAppSelector((state) => state.reveloUserInfo);
+  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, projectConceptModel } = useAppSelector((state) => state.reveloUserInfo);
+  const { toPDF, targetRef } = usePDF({
+    filename: `report_${getCurrentDateDDMMYYYY()}.pdf`,
+    resolution: Resolution.NORMAL,
+    page: { orientation: "landscape" },
+    method: "open",
+  });
+
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
@@ -257,14 +270,14 @@ const IndividualReport = (props: any) => {
     setSelectedValues(updatedValues);
     setDisabledPanels(updatedDisabled);
     let disableNext = false;
-    if (parentEntityValue === "all" ) {
+    if (parentEntityValue === "all") {
       for (let i = currentIndex + 1; i < selectOptions.length; i++) {
         options = [{
           label: "All",
           selected: true,
           value: "all"
         }]
-        if (disableNext || updatedValues[selectOptions[i].name] === "all" ) {
+        if (disableNext || updatedValues[selectOptions[i].name] === "all") {
           updatedValues[selectOptions[i].name] = "All";
           updatedDisabled[selectOptions[i].name] = true;
           disableNext = true;
@@ -406,8 +419,8 @@ const IndividualReport = (props: any) => {
                 onChange={(e) => {
                   populateChildWidget(e, node.name, arras, index);
                 }}
-                disabled={(arras[index].name === defaultvalueRef.current)||( index > 0 && disabledPanels[arras[index - 1].name])}
-                // disabled={disabledPanels[node.name]}
+                disabled={(arras[index].name === defaultvalueRef.current) || (index > 0 && disabledPanels[arras[index - 1].name])}
+              // disabled={disabledPanels[node.name]}
               >
                 {selectOption?.map((elss: any) => {
                   return (
@@ -423,9 +436,9 @@ const IndividualReport = (props: any) => {
       );
     });
   };
-  useEffect(()=>{
+  useEffect(() => {
     getEntityData()
-  },[])
+  }, [])
   const getEntityData = async () => {
     // console.log(attributes)
     setLoading(true)
@@ -443,17 +456,23 @@ const IndividualReport = (props: any) => {
       .then((res) => {
         console.log(res.data)
         res.data?.features.forEach((el: any) => {
+          const date = el.properties.shifttime
+          const dateObject = new Date(date);
+          const shiftDate = dateObject.toISOString().split('T')[0];
           payload.push({
             shiftname: el.properties.shiftname,
             status: el.properties.status,
             blocksid: el.properties.blocksid,
             shiftid: el.properties.shiftid,
-            zone:el.properties.zone,
+            zone: el.properties.zone,
+            shiftdate: shiftDate,
+            username: el.properties.username
             // unit:el.properties.unit
           })
         })
         console.log(payload)
         setattrProperties(payload)
+        setDownloadData(payload)
         // allIds.current = payload
         // setFeatures(res.data.features);
         setLoading(false)
@@ -463,12 +482,16 @@ const IndividualReport = (props: any) => {
         setLoading(false)
       })
   }
-  console.log(date)
+console.log(payload)
+  const handleData = (data:any) => {
+    console.log(data)
+    setPayload(data);
+  };
   return (
     <>
       <div className='widget-wrapper'  >
         <div className='select-widget' >
-        {/* <div
+          {/* <div
             style={{
               display: "inline-flex",
               flexDirection: "column",
@@ -510,11 +533,53 @@ const IndividualReport = (props: any) => {
         <Button type="primary" onClick={() => { toPDF() }} icon={<DownloadOutlined />} />
         <Button type="primary" style={{ marginLeft: '3px' }} onClick={() => { handleReset() }} icon={<RedoOutlined />} />
       </div> */}
+
+        <div ref={targetRef} className="button-refresh">
+          <Button
+            type="primary"
+            onClick={() => {
+              if (payload.length === 0) {
+
+              } else {
+                const data = payload;
+                const fileName = `tmsreport_${payload[0].shiftdate}`;
+                const exportType = exportFromJSON.types.xls;
+                const fields = {
+                  shiftdate: "Shift Date",
+                  username: "Vendor Name",
+                  shiftname: "Shift",
+                  zone: "Zone",
+                  status: " Status",
+                  blocksid: "Block",
+                };
+                exportFromJSON({ data, fileName, fields: fields, exportType });
+              }
+            }}
+            icon={<DownloadOutlined />}
+          />
+          <Button
+            type="primary"
+            style={{ marginLeft: "3px" }}
+            onClick={() => {
+              handleReset();
+              // setDate("")
+            }}
+            icon={<RedoOutlined />}
+          />
+        </div>
       </div>
       <Divider />
       <div>
         <>
-          <div className="main-wrapper"><IndividualReportMap jurisdiction={jurisdiction} name={name} projectName={projectName} allFeatures={attrProperties} date={date}/></div>
+          <div className="main-wrapper"><IndividualReportMap
+            jurisdiction={jurisdiction}
+            name={name}
+            projectName={projectName}
+            allFeatures={attrProperties}
+            date={date} 
+            onDataFromChild={handleData}
+            />
+            </div>
         </>
       </div>
     </>

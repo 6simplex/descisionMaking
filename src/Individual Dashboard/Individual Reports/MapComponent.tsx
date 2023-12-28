@@ -4,20 +4,34 @@ import { RFeature, RLayerVector, RMap, ROSM, RStyle } from "rlayers";
 import { Point } from "ol/geom";
 import axios from "axios";
 import { useAppSelector } from "../../Redux/store/store";
-import { Spin, Table, message } from "antd";
+import { DatePicker, Spin, Table, message } from "antd";
 import ReveloBarGraph from "../../Dashboard/Dashboard/Widgets/ReveloBarGraph/ReveloBarGraph";
 import ReveloPie from "../../Dashboard/Dashboard/Widgets/ReveloPie/ReveloPie";
 import './report.css'
+import moment, { Moment } from 'moment';
+import { ColumnsType } from 'antd/es/table';
+import Typography from "antd/es/typography/Typography";
 const center = fromLonLat([79.081993, 21.147913]);
+interface YourDataItem {
+  shiftid: any;
+  shifttime: string;
+}
+// interface FilterDropdownProps {
+//   setSelectedKeys: (selectedKeys: React.Key[]) => void;
+//   selectedKeys: React.Key[];
+//   confirm: (param: { closeDropdown: boolean }) => void;
+//   clearFilters: () => void;
+// }
+
 
 const IndividualReportMap = (props: any) => {
   console.log(props)
   const [reportData, setReportData] = useState<any>();
   const [reportValueFields, setReportValueFields] = useState<any[]>([]);
   const [reportOutput, setReportOutput] = useState<any[]>([]);
-  const [initialIds, setInitialIds] = useState();
-  const [attrValue, setAttrValue] = useState<any>(null);
-  const [attributes, setAttributes] = useState();
+  const [initialIds, setInitialIds] = useState<any>();
+  const [filteredData, setFilteredData] = useState<YourDataItem[]>([]);
+  const [selectedDate, setSelectedDate] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(true);
   const vectorRef = useRef<RLayerVector | any>(null);
@@ -30,7 +44,32 @@ const IndividualReportMap = (props: any) => {
   const graphContainer = props.name === 'valuestatus' || "morningshift" || "afternoonshift" ? 'graph-table-wrapper' : 'graph-map-wrapper'
   const container = props.name === 'valuestatus' || "morningshift" || "afternoonshift" ? 'table-wrapper' : 'map-wrapper'
 
-  const columns = [
+  useEffect(() => {
+    let data:any;
+    data =  filteredData
+    console.log(data)
+    props.onDataFromChild(data);
+    // if (filteredData.length > 0 || properties.length > 0) {
+     
+    // }
+  }, []);
+  const handleDateChange = (date: Moment | null) => {
+    console.log(date)
+    setSelectedDate(date);
+
+    if (date) {
+      const formattedSelectedDate = date.format('YYYY-MM-DD');
+      const filtered = properties.filter((item: any) =>
+        moment(item.shifttime, 'YYYY-MM-DD HH:mm:ss [GMT]Z').format('YYYY-MM-DD') === formattedSelectedDate
+      );
+      console.log(properties)
+      console.log(filtered)
+      setFilteredData(filtered);
+    } else {
+      setFilteredData([]);
+    }
+  };
+  const columns: ColumnsType<YourDataItem> = [
     {
       title: 'Index',
       dataIndex: 'index',
@@ -42,9 +81,33 @@ const IndividualReportMap = (props: any) => {
       key: 'shiftname',
     },
     {
-      title: 'Shift Date',
-      dataIndex: 'shiftDate',
-      key: 'shiftDate',
+      title: 'Shift Time',
+      dataIndex: 'shifttime',
+      key: 'shifttime',
+      render: (text: any) => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }: any) => {
+        return (
+          <div style={{ padding: 8 }}>
+            <DatePicker
+              value={selectedDate}
+              onChange={(date: any) => handleDateChange(date)}
+              placeholder="Select Date"
+            />
+            {/* <button onClick={() => confirm({ closeDropdown: true })}>OK</button>
+            <button onClick={() => clearFilters()}>Reset</button> */}
+          </div>
+        );
+      },
+
+      filterIcon: (filtered: boolean) => (
+        <span style={{ color: filtered ? '#1890ff' : undefined }}>📅</span>
+      ),
+      onFilter: (value: any, record: YourDataItem) => moment(record.shifttime, 'YYYY-MM-DD HH:mm:ss [GMT]Z').isSame(value, 'day'),
     },
     {
       title: 'Shift Status',
@@ -114,7 +177,7 @@ const IndividualReportMap = (props: any) => {
         query: {
           bool: {
             must: [
-              { match: { jurisdictionName: getJtypeandJname()[0] } },
+              { match_phrase: { jurisdictionName: getJtypeandJname()[0] } },
               // { match: { shiftdate: "2023-12-26" } },
             ],
           },
@@ -132,6 +195,7 @@ const IndividualReportMap = (props: any) => {
         const metadataString = payload ? payload[0].metadata : ""
         const metadata = JSON.parse(metadataString);
         console.log(metadata.mainEntityIDs)
+        setInitialIds(metadata.mainEntityIDs)
         getEntityData(metadata.mainEntityIDs)
       }
       setLoading(false);
@@ -154,71 +218,104 @@ const IndividualReportMap = (props: any) => {
       jurisdiction.country = "India";
     }
     console.log(attributes)
-    await axios.post(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query`,
-      {
-        query: {
-          datasource: {
-            targetArtifact: "original",
-            // jurisdiction: jurisdiction,
-            attributes: {
-              shiftid: attributes
+    // await axios.post(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query`,
+    //   {
+    //     query: {
+    //       datasource: {
+    //         targetArtifact: "original",
+    //         // jurisdiction: jurisdiction,
+    //         attributes: {
+    //           shiftid: attributes
+    //         }
+    //       }
+    //     },
+    //     resultOptions: {
+    //       outputWKID: -1,
+    //       returnIdsOnly: false,
+    //       returnGeometry: false
+    //     }
+    //   })
+    //   .then((res) => {
+    //     console.log(res.data)
+    //     if (res.status === 200) {
+    //       res.data?.features.forEach((el: any) => {
+    //         const date = el.properties.shifttime
+    //         const dateObject = new Date(date);
+    //         const shiftDate = dateObject.toISOString().split('T')[0];
+    //         payload.push({
+    //           shiftname: el.properties.shiftname,
+    //           status: el.properties.status,
+    //           blocksid: el.properties.blocksid,
+    //           shiftid: el.properties.shiftid,
+    //           zone: el.properties.zone,
+    //           shiftDate: shiftDate
+    //         })
+    //       })
+    //       console.log(payload)
+    //       setProperties(payload)
+    //       allIds.current = payload
+    //       setFeatures(res.data.features);
+    //       setTableLoading(false)
+    //     }
+    //     else {
+    //       console.log('Retrying...');
+    //       (async () => {
+    //         await new Promise(resolve => setTimeout(resolve, 1000));
+    //         await getEntityData(attributes);
+    //       })();
+    //       setTableLoading(false)
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err)
+    //     setTableLoading(false)
+    //   })
+    let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
+    let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
+    try {
+      const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_shiftdetailed_features/_search`,
+        {
+          "size": 1000,
+          "query": {
+            "terms": {
+              "shiftid.keyword": attributes
             }
           }
-        },
-        resultOptions: {
-          outputWKID: -1,
-          returnIdsOnly: false,
-          returnGeometry: false
-        }
-      })
-      .then((res) => {
-        console.log(res.data)
-        if (res.status === 200) {
-          res.data?.features.forEach((el: any) => {
-            const date = el.properties.shifttime
-            const dateObject = new Date(date);
-            const shiftDate = dateObject.toISOString().split('T')[0];
-            payload.push({
-              shiftname: el.properties.shiftname,
-              status: el.properties.status,
-              blocksid: el.properties.blocksid,
-              shiftid: el.properties.shiftid,
-              zone: el.properties.zone,
-              shiftDate: shiftDate
-            })
-          })
-          console.log(payload)
-          setProperties(payload)
-          allIds.current = payload
-          setFeatures(res.data.features);
-          setTableLoading(false)
-        }
-        else {
-          console.log('Retrying...');
-          (async () => {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await getEntityData(attributes);
-          })();
-          setTableLoading(false)
-        }
+        })
+      if (reportOutPut.data.error) {
+        setTableLoading(false);
+        return message.error("Something went Wrong");
+      }
+      reportOutPut.data.hits.hits.forEach((outPut: any) => {
+        console.log(outPut._source)
+        payload.push(outPut._source);
+      });
+      setProperties(payload);
+      setTableLoading(false);
+    } catch (err) {
+      console.log(err)
+      setTableLoading(false);
+    }
 
-      })
-      .catch((err) => {
-        console.log(err)
-        setTableLoading(false)
-      })
   }
-
   const getCategoryData = (data: any) => {
     console.log(data.data.indexValue)
-    console.log(allIds.current)
+    console.log(initialIds)
     if (Array.isArray(allIds.current)) {
-      const Objects = props.allFeatures.filter((item: any) => item.status === data.data.indexValue);
-      const ObjectIds = Objects.map((item: any) => item.shiftid);
+      const allIdspayload: any[] = []
+      initialIds.forEach((id: any) => {
+        const ids = props.allFeatures?.filter((item: any) => item.shiftid === id);
+        // console.log(ids)
+        allIdspayload.push(ids)
+      })
+      const Objects = allIdspayload.filter((item: any) => item[0]?.status.toLowerCase() === data.data.indexValue);
+      console.log(Objects)
+      const ObjectIds = Objects.map((item: any) => item ? item[0].shiftid : "");
       console.log(ObjectIds)
       getEntityData(ObjectIds)
     }
   }
+  console.log(reportData)
   return (<>
     {loading ? (
       <>
@@ -240,6 +337,9 @@ const IndividualReportMap = (props: any) => {
         <>
           <div className={container}>
             <div className="graph-class-container">
+                 <div style={{top:0 , position: 'fixed', marginTop:"12rem" , marginLeft:'15rem'}}>
+                  <Typography style={{fontWeight:"530", fontSize:"20px" , fontFamily:"sans-serif"}}>{reportData?.label}</Typography>
+                </div>
               <div className={graphContainer} >
                 <div className="graph-class">
                   {reportData?.visualizations.type === "pieChart" ? (
@@ -312,7 +412,7 @@ const IndividualReportMap = (props: any) => {
 
                 <div
                   style={{
-                    marginTop:"20px",
+                    marginTop: "20px",
                     display: "flex",
                     flexDirection: "column",
                     placeContent: "center",
@@ -331,15 +431,11 @@ const IndividualReportMap = (props: any) => {
                   //   // onChange: handleRowSelection,
                   //   // selectedRowKeys: selectedUsers,
                   // }}
-                  dataSource={properties}
+                  dataSource={selectedDate ? filteredData : properties}
                   scroll={{ y: 730 }}
                   pagination={false}
                 />
-
               )}
-
-
-
             </div>
           </div>
         </>

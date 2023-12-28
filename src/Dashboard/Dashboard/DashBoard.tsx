@@ -1,6 +1,5 @@
 import {
   Button,
-  Divider,
   Select,
   Space,
   Spin,
@@ -15,9 +14,7 @@ import { fetchData, getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { usePDF, Resolution } from "react-to-pdf";
 import Wrapper from "./Widgets/Wrapper";
-import RDashBoard from "../RDashBoard";
 import WrapperNMC from "./Widgets/WrapperNMC";
-import { error } from "console";
 import WrapperNMC1 from "./Widgets/WrapperNMC1";
 type Props = {
   targetRef: any;
@@ -438,7 +435,6 @@ const Dashboard = (props: Props) => {
         selectedValues[node.name],
         node
       );
-      // console.log(arras[index].name);
       return (
         <>
           <div
@@ -511,8 +507,6 @@ const Dashboard = (props: Props) => {
             </Space>
           </div>
         </div>
-
-
         <div className="button-refresh">
           <Button
             type="primary"

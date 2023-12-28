@@ -27,7 +27,7 @@ const IndividualDashboard = (props: Props) => {
   const headerStyle: React.CSSProperties = {
     flex: "0 0 5%",
     paddingInline: 0,
-    background: userInfo.orgUXInfo.colors.primaryColor,
+    background: userInfo.userInfo.customerInfo.customerUXInfo.colors.primaryColor,
   };
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={[0, 48]}>

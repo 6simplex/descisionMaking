@@ -39,13 +39,15 @@ const ReveloPie: React.FC<Props & ChildProps> = (props) => {
           id: upperCase(val),
           label: autoCaptialize(val),
           value: element[val],
-          indexValue:autoCaptialize(val)
+          indexValue: lowerCase(val)
         });
       });
     });
     return pieData;
   };
-
+  const lowerCase = (str: any): string => {
+    return str.toLowerCase();
+  };
   const upperCase = (str: any): string => {
     return str.toUpperCase();
   };
