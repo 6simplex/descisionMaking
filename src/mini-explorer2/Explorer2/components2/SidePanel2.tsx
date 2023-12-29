@@ -291,7 +291,7 @@ export const SidePanel2 = (props: Props) => {
             >
               <div className="block-1" style={{ height: "inherit" }}>
                 <Table
-                  size="small"
+                  size="middle"
                   bordered
                   pagination={false}
                   columns={[
