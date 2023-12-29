@@ -10,7 +10,11 @@ import {
   Typography,
   message,
 } from "antd";
-import { FullscreenOutlined, SyncOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  FullscreenOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { useAppSelector } from "../../../Redux/store/store";
@@ -19,7 +23,7 @@ import localeData from "dayjs/plugin/localeData";
 import weekday from "dayjs/plugin/weekday";
 import { todayDate } from "../../../utils/cutsomhooks";
 import ReveloPie from "./ReveloPie/ReveloPie";
-import ReveloBarGraph from "./ReveloBarGraph/ReveloBarGraph";
+import exportFromJSON from "export-from-json";
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 type Props = {
@@ -30,6 +34,7 @@ type Props = {
 };
 
 const WrapperNMCMorning = (props: Props) => {
+  const [download, setDownload] = useState<any>([]);
   const [total, setTotal] = useState(0);
   const [none, setNone] = useState(false);
   const [value, setValue] = useState<any[]>([]);
@@ -90,6 +95,7 @@ const WrapperNMCMorning = (props: Props) => {
         setValue([]);
         setTotal(0);
         setLoading1(false);
+        setDownload([]);
       } else {
         reportOutPut.data.hits.hits.forEach((outPut: any) => {
           payload.push(outPut._source.shiftInfo);
@@ -109,13 +115,6 @@ const WrapperNMCMorning = (props: Props) => {
           Locked = Locked + element.Morning.Locked;
           skipped = skipped + element.Morning.skipped;
         });
-        console.log({
-          Clean: Clean,
-          Damaged: Damaged,
-          Blocked: Blocked,
-          Locked: Locked,
-          skipped: skipped,
-        });
         setNone(false);
         setValue([
           {
@@ -126,7 +125,18 @@ const WrapperNMCMorning = (props: Props) => {
             skipped: skipped,
           },
         ]);
-
+        setDownload([
+          {
+            ShiftDate: date,
+            [getJtypeandJname()[1]]: getJtypeandJname()[0],
+            Total: Total,
+            Clean: Clean,
+            Damaged: Damaged,
+            Blocked: Blocked,
+            Locked: Locked,
+            skipped: skipped,
+          },
+        ]);
         setTotal(total);
         setLoading1(false);
       }
@@ -153,11 +163,37 @@ const WrapperNMCMorning = (props: Props) => {
             >
               <Button size="small" icon={<FullscreenOutlined />} />
             </Link>
-            {/* <Button
-                size="small"
-                icon={<DownloadOutlined />}
-                onClick={() => { }}
-              /> */}
+            <Button
+              size="small"
+              icon={<DownloadOutlined />}
+              onClick={() => {
+                if (download.length === 0) {
+                  message.info("No report for selected Date");
+                } else {
+                  const data = download;
+                  const fileName = `tmsreport_morning_${
+                    getJtypeandJname()[0]
+                  }_${download[0].ShiftDate}`;
+                  const exportType = exportFromJSON.types.xls;
+                  const fields = {
+                    Shiftdate: "Shift Date",
+                    [getJtypeandJname()[1]]: getJtypeandJname()[0],
+                    Total: "Total",
+                    Clean: "Clean",
+                    Damaged: "Damaged",
+                    Blocked: "Blocked",
+                    Locked: "Locked",
+                    skipped: "Skipped",
+                  };
+                  exportFromJSON({
+                    data,
+                    fileName,
+                    fields: fields,
+                    exportType,
+                  });
+                }
+              }}
+            />
             <Button
               size="small"
               onClick={() => {
