@@ -43,6 +43,7 @@ const Attachment = (props: Props) => {
       });
   };
   useEffect(() => {
+    console.log(props.shifts);
     setValue(props.shifts[0].shiftName);
     props.shiftType(props.shifts[0].shiftName);
     if (props.shifts.length > 0) {
@@ -89,6 +90,7 @@ const Attachment = (props: Props) => {
         }}
       >
         <Segmented
+          size="large"
           options={["Morning", "Afternoon", "Evening"]}
           value={value}
           onChange={(e) => {
@@ -119,7 +121,7 @@ const Attachment = (props: Props) => {
           {properties.length > 0 ? (
             <>
               <Carousel
-                style={{ marginTop: "10px" }}
+                style={{ marginTop: "10px",display:"flex",flexDirection:"row",placeContent:"center",placeItems:"center", }}
                 // wrapAround
                 defaultControlsConfig={{
                   nextButtonText: (
@@ -151,7 +153,7 @@ const Attachment = (props: Props) => {
                         src={`data:image/png;base64,${properties.properties.thumbnailastext}`}
                         alt={properties.properties.name}
                         width={"100%"}
-                        height={"200px"}
+                        height={"300px"}
                       />
                       <div>
                         <div

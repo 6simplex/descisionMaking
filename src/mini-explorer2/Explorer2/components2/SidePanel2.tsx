@@ -345,32 +345,12 @@ export const SidePanel2 = (props: Props) => {
               <div
                 className="block-2"
                 style={{
-                  borderTop: "1px solid #d9d9d9",
                   padding: "10px",
                 }}
               >
                 {indexesBlock ? (
                   <>
-                    {/* <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        placeItems: "flex-start",
-                      }}
-                    >
-                      <Typography style={{ fontSize: "150%" }}>
-                        Block:
-                      </Typography>
-                      <Typography
-                        style={{
-                          fontSize: "150%",
-                          color: "#0075ea",
-                          marginLeft: "5px",
-                        }}
-                      >
-                        {indexesBlock}
-                      </Typography>
-                    </div> */}
+                  
                     {shiftIds.length === 0 ? (
                       <>
                         <div
