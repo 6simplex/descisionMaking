@@ -125,11 +125,7 @@ const WrapperNMC1 = (props: Props) => {
         let eveSum = 0;
         payload.forEach((element: any) => {
           sum = sum + element.Morning.morningCost;
-        });
-        payload.forEach((element: any) => {
           aftersum = aftersum + element.Afternoon.afternoonCost;
-        });
-        payload.forEach((element: any) => {
           eveSum = eveSum + element.Evening.eveningCost;
         });
         setValue([

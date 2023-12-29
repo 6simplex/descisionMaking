@@ -17,7 +17,7 @@ const ReveloBarGraph: React.FC<Props & ChildProps> = (props) => {
   const handleClick = (data: any) => {
     props.onClick(data);
   };
-  console.log(props.data)
+  
   const createDataBarGraph = () => {
     const barGraph: any[] = [];
     const result: any[] = [];

@@ -84,7 +84,7 @@ const Wrapper = (props: Props) => {
       reportOutPut.data.hits.hits.forEach((outPut: any) => {
         payload.push(outPut._source);
       });
-      console.log(props.name, payload);
+    
       setReportOutPuts(payload);
       setLoading(false);
     } catch (err) {
@@ -95,7 +95,7 @@ const Wrapper = (props: Props) => {
 
   useEffect(() => {
     getReportPutOut();
-    console.log(reportOutPuts);
+
   }, [refresh, props.jurisdiction]);
 
   return (

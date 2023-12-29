@@ -1,11 +1,4 @@
-import {
-  Button,
-  Select,
-  Space,
-  Spin,
-  Typography,
-  message,
-} from "antd";
+import { Button, Select, Space, Spin, Typography, message } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../Redux/store/store";
 import cytoscape, { EdgeDefinition, NodeDefinition } from "cytoscape";
@@ -16,6 +9,9 @@ import { usePDF, Resolution } from "react-to-pdf";
 import Wrapper from "./Widgets/Wrapper";
 import WrapperNMC from "./Widgets/WrapperNMC";
 import WrapperNMC1 from "./Widgets/WrapperNMC1";
+import WrapperNMCMorning from "./Widgets/WrapperNMCMorning";
+import WrapperNMCAfternoon from "./Widgets/WrapperNMCAfternoon";
+import WrapperNMCEvening from "./Widgets/WrapperNMCEvening";
 type Props = {
   targetRef: any;
 };
@@ -27,7 +23,6 @@ const Dashboard = (props: Props) => {
     resolution: Resolution.MEDIUM,
     page: { orientation: "l", format: "A3" },
     method: "open",
-
   });
   props.targetRef(targetRef);
   const getAllReportOut = async () => {
@@ -53,8 +48,13 @@ const Dashboard = (props: Props) => {
   const [disabledPanels, setDisabledPanels] = useState<any>({});
   const [childWidget, setChildWidget] = useState(new Map());
   const descendantValuesMap = useRef(new Map());
-  const { obcmSnapShotDetails, obcmSnapShot, userInfo, jurisdictions, project } =
-   useAppSelector((state) => state.reveloUserInfo);
+  const {
+    obcmSnapShotDetails,
+    obcmSnapShot,
+    userInfo,
+    jurisdictions,
+    project,
+  } = useAppSelector((state) => state.reveloUserInfo);
   let immediateChildEntityNode: any;
   let descendantsMap: any = new Map();
   let ancestorsMap: any = new Map();
@@ -224,7 +224,7 @@ const Dashboard = (props: Props) => {
 
   const createEntitySelectorPanel = (value: any, obcmEntity: any) => {
     let options: any[] = [];
-    let selectedValue = value; 
+    let selectedValue = value;
     if (ancestorsMap.has(obcmEntity?.name) === true) {
       var jurisdictionName = ancestorsMap.get(obcmEntity.name);
       if (jurisdictionName) {
@@ -255,9 +255,11 @@ const Dashboard = (props: Props) => {
           },
         ];
       }
-    }
-    else {
-      options = extractValueOptionsFromObject(immediateChildEntityNode.data().name, ancestorsMap);
+    } else {
+      options = extractValueOptionsFromObject(
+        immediateChildEntityNode.data().name,
+        ancestorsMap
+      );
     }
     selectedValue = jurisdictionName ? jurisdictionName : value;
     let existingSelectObject = widgetsMap.get(obcmEntity?.name);
@@ -273,7 +275,12 @@ const Dashboard = (props: Props) => {
     return options;
   };
 
-  const populateChildWidget = (value: any, parentEntityName: any, selectOptions: any, index: any) => {
+  const populateChildWidget = (
+    value: any,
+    parentEntityName: any,
+    selectOptions: any,
+    index: any
+  ) => {
     const previousSelectedValue = selectedValues[parentEntityName];
     setSelectedOption({
       name: value === "all" ? previousSelectedValue : value,
@@ -336,7 +343,7 @@ const Dashboard = (props: Props) => {
       }
       if (!childEntity) {
         return;
-      }  
+      }
       let childEntityName = childEntity.name;
       let ancestorsMap = new Map();
       ancestorsMap.set(parentEntityName, parentEntityValue);
@@ -462,7 +469,10 @@ const Dashboard = (props: Props) => {
                 onChange={(e) => {
                   populateChildWidget(e, node.name, arras, index);
                 }}
-                disabled={(arras[index].name ===  defaultvalueRef.current)||( index > 0 && disabledPanels[arras[index - 1].name])}
+                disabled={
+                  arras[index].name === defaultvalueRef.current ||
+                  (index > 0 && disabledPanels[arras[index - 1].name])
+                }
               >
                 {selectOption?.map((elss: any) => {
                   return (
@@ -480,7 +490,7 @@ const Dashboard = (props: Props) => {
       );
     });
   };
-  console.log(jurisdiction)
+
   return (
     <>
       <div className="widget-wrapper">
@@ -564,13 +574,30 @@ const Dashboard = (props: Props) => {
                 jurisdiction={jurisdiction}
                 outFields={[]}
               />
-               <WrapperNMC1
+              <WrapperNMC1
                 name={"Vendoor Wise Payment"}
                 label={"Vendor Wise Payment"}
                 jurisdiction={jurisdiction}
                 outFields={[]}
               />
-              
+              <WrapperNMCMorning
+                name={"Morning Wise Shift"}
+                label={"Morning Wise Shift"}
+                jurisdiction={jurisdiction}
+                outFields={[]}
+              />
+              <WrapperNMCAfternoon
+                name={"Afternoon Wise Shift"}
+                label={"Afternoon Wise Shift"}
+                jurisdiction={jurisdiction}
+                outFields={[]}
+              />
+              <WrapperNMCEvening
+                name={"Evening Wise Shift"}
+                label={"Evening Wise Shift"}
+                jurisdiction={jurisdiction}
+                outFields={[]}
+              />
             </div>
           </>
         )}

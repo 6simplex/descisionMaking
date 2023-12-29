@@ -43,7 +43,6 @@ const Attachment = (props: Props) => {
       });
   };
   useEffect(() => {
-    console.log(props.shifts);
     setValue(props.shifts[0].shiftName);
     props.shiftType(props.shifts[0].shiftName);
     if (props.shifts.length > 0) {
@@ -121,7 +120,13 @@ const Attachment = (props: Props) => {
           {properties.length > 0 ? (
             <>
               <Carousel
-                style={{ marginTop: "10px",display:"flex",flexDirection:"row",placeContent:"center",placeItems:"center", }}
+                style={{
+                  marginTop: "10px",
+                  display: "flex",
+                  flexDirection: "row",
+                  placeContent: "center",
+                  placeItems: "center",
+                }}
                 // wrapAround
                 defaultControlsConfig={{
                   nextButtonText: (
