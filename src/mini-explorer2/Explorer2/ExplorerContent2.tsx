@@ -27,7 +27,7 @@ dayjs.extend(localeData);
 const ExplorerContent2 = () => {
   const [downloadjson, setDownloadJson] = useState<any>([]);
   const [date, setDate] = useState<any>(todayDate());
-  const [unitGeojson, setUnitGeojson] = useState();
+  const [unitGeojson, setUnitGeojson] = useState([]);
   const [loading, setLoading] = useState(true);
   const { toPDF, targetRef } = usePDF({
     filename: `report_${getCurrentDateDDMMYYYY()}.pdf`,
@@ -527,6 +527,7 @@ const ExplorerContent2 = () => {
           },
         }
       );
+      
       if (reportOutPut.data.error) {
         setLoading(false);
         return message.error("Something went Wrong");

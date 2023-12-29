@@ -155,11 +155,17 @@ export const SidePanel2 = (props: Props) => {
           }}
           header={
             <div style={{ fontSize: "100%", fontWeight: "bolder" }}>
-              Unit ({props.loading ? 0 : props.unit.features.length})
+              Unit ({props.loading ? 0 : props.unit?.features?.length})
             </div>
           }
           bordered
-          dataSource={props.loading ? [] : props.unit.features}
+          dataSource={
+            props.loading
+              ? []
+              : props.unit?.features === undefined
+              ? []
+              : props.unit?.features
+          }
           renderItem={(item: any, index) => (
             <List.Item
               id={item.properties.unitname}
@@ -350,7 +356,6 @@ export const SidePanel2 = (props: Props) => {
               >
                 {indexesBlock ? (
                   <>
-                  
                     {shiftIds.length === 0 ? (
                       <>
                         <div
@@ -483,54 +488,63 @@ export const SidePanel2 = (props: Props) => {
                     zIndex={10}
                     properties={{ name: "unit" }}
                   >
-                    {props.unit.features.map((f: any) => {
-                      return (
-                        <>
-                          <RFeature
-                            properties={f.properties}
-                            style={
-                              new Style({
-                                fill: new Fill({
-                                  color: "rgba(255, 0, 0, 0.5)",
-                                }),
-                                stroke: new Stroke({
-                                  width: 2,
-                                }),
-                                text: new Text({
-                                  font: "15px sens-sarif",
-                                  text: f.properties.unitname,
-                                  textAlign: "center",
-                                  fill: new Fill({
-                                    color: "white",
-                                  }),
-                                }),
-                              })
-                            }
-                            geometry={new MultiPolygon(f.geometry.coordinates)}
-                            onClick={(e: any) => {
-                              const listItemElement = document.getElementById(
-                                `${e.target.get("unitname")}`
-                              );
-                              if (listItemElement) {
-                                listItemElement.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "start",
-                                });
-                              }
-                              setIndexes(e.target.get("unitname"));
-                              getBlocks(e.target.get("unitid"));
+                    {props.unit.features === undefined ? (
+                      <></>
+                    ) : (
+                      <>
+                        {props.unit.features.map((f: any) => {
+                          return (
+                            <>
+                              <RFeature
+                                properties={f.properties}
+                                style={
+                                  new Style({
+                                    fill: new Fill({
+                                      color: "rgba(255, 0, 0, 0.5)",
+                                    }),
+                                    stroke: new Stroke({
+                                      width: 2,
+                                    }),
+                                    text: new Text({
+                                      font: "15px sens-sarif",
+                                      text: f.properties.unitname,
+                                      textAlign: "center",
+                                      fill: new Fill({
+                                        color: "white",
+                                      }),
+                                    }),
+                                  })
+                                }
+                                geometry={
+                                  new MultiPolygon(f.geometry.coordinates)
+                                }
+                                onClick={(e: any) => {
+                                  const listItemElement =
+                                    document.getElementById(
+                                      `${e.target.get("unitname")}`
+                                    );
+                                  if (listItemElement) {
+                                    listItemElement.scrollIntoView({
+                                      behavior: "smooth",
+                                      block: "start",
+                                    });
+                                  }
+                                  setIndexes(e.target.get("unitname"));
+                                  getBlocks(e.target.get("unitid"));
 
-                              unitVecRef.current.context.map
-                                .getView()
-                                .fit(e.target.getGeometry().getExtent(), {
-                                  duration: 2000,
-                                  padding: [200, 200, 200, 200],
-                                });
-                            }}
-                          ></RFeature>
-                        </>
-                      );
-                    })}
+                                  unitVecRef.current.context.map
+                                    .getView()
+                                    .fit(e.target.getGeometry().getExtent(), {
+                                      duration: 2000,
+                                      padding: [200, 200, 200, 200],
+                                    });
+                                }}
+                              ></RFeature>
+                            </>
+                          );
+                        })}
+                      </>
+                    )}
                   </RLayerVector>
                 </RMap>
               </>

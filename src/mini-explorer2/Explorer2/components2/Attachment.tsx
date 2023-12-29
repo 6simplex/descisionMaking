@@ -120,13 +120,7 @@ const Attachment = (props: Props) => {
           {properties.length > 0 ? (
             <>
               <Carousel
-                style={{
-                  marginTop: "10px",
-                  display: "flex",
-                  flexDirection: "row",
-                  placeContent: "center",
-                  placeItems: "center",
-                }}
+                style={{ marginTop: "10px",display:"flex",flexDirection:"row",placeContent:"center",placeItems:"center", }}
                 // wrapAround
                 defaultControlsConfig={{
                   nextButtonText: (
