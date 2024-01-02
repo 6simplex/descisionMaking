@@ -568,18 +568,6 @@ const Dashboard = (props: Props) => {
                   </>
                 );
               })}
-              <WrapperNMC
-                name={"Shift Wise Count"}
-                label={"Shift Wise Count"}
-                jurisdiction={jurisdiction}
-                outFields={[]}
-              />
-              <WrapperNMC1
-                name={"Vendoor Wise Payment"}
-                label={"Vendor Wise Payment"}
-                jurisdiction={jurisdiction}
-                outFields={[]}
-              />
               <WrapperNMCMorning
                 name={"Morning Wise Shift"}
                 label={"Morning Wise Shift"}
@@ -595,6 +583,18 @@ const Dashboard = (props: Props) => {
               <WrapperNMCEvening
                 name={"Evening Wise Shift"}
                 label={"Evening Wise Shift"}
+                jurisdiction={jurisdiction}
+                outFields={[]}
+              />
+              <WrapperNMC
+                name={"Shift Wise Count"}
+                label={"Shift Wise Count"}
+                jurisdiction={jurisdiction}
+                outFields={[]}
+              />
+              <WrapperNMC1
+                name={"Vendoor Wise Payment"}
+                label={"Vendor Wise Payment"}
                 jurisdiction={jurisdiction}
                 outFields={[]}
               />
