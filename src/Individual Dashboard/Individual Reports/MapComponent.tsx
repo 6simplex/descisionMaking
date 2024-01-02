@@ -16,12 +16,12 @@ interface YourDataItem {
   shiftid: any;
   shifttime: string;
 }
-// interface FilterDropdownProps {
-//   setSelectedKeys: (selectedKeys: React.Key[]) => void;
-//   selectedKeys: React.Key[];
-//   confirm: (param: { closeDropdown: boolean }) => void;
-//   clearFilters: () => void;
-// }
+interface FilterDropdownProps {
+  setSelectedKeys: (selectedKeys: React.Key[]) => void;
+  selectedKeys: React.Key[];
+  confirm: (param: { closeDropdown: boolean }) => void;
+  clearFilters: () => void;
+}
 
 
 const IndividualReportMap = (props: any) => {
@@ -46,13 +46,14 @@ const IndividualReportMap = (props: any) => {
 
   useEffect(() => {
     let data:any;
-    data =  filteredData
+    data = filteredData
     console.log(data)
-    props.onDataFromChild(data);
-    // if (filteredData.length > 0 || properties.length > 0) {
-     
-    // }
-  }, []);
+   
+    if (filteredData) {    
+      props.onDataFromChild(filteredData);
+    }
+  }, [filteredData]);
+
   const handleDateChange = (date: Moment | null) => {
     console.log(date)
     setSelectedDate(date);
@@ -103,7 +104,6 @@ const IndividualReportMap = (props: any) => {
           </div>
         );
       },
-
       filterIcon: (filtered: boolean) => (
         <span style={{ color: filtered ? '#1890ff' : undefined }}>📅</span>
       ),
@@ -124,7 +124,6 @@ const IndividualReportMap = (props: any) => {
       dataIndex: 'zone',
       key: 'zone',
     },
-
   ];
 
   useEffect(() => {
@@ -173,12 +172,11 @@ const IndividualReportMap = (props: any) => {
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {
       const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_${props.name.toLocaleLowerCase()}/_search`, {
-        size: 1000,
+        // size: 0,
         query: {
           bool: {
             must: [
               { match_phrase: { jurisdictionName: getJtypeandJname()[0] } },
-              // { match: { shiftdate: "2023-12-26" } },
             ],
           },
         },
@@ -217,7 +215,6 @@ const IndividualReportMap = (props: any) => {
     } else {
       jurisdiction.country = "India";
     }
-    console.log(attributes)
     // await axios.post(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query`,
     //   {
     //     query: {
@@ -275,7 +272,7 @@ const IndividualReportMap = (props: any) => {
     try {
       const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_shiftdetailed_features/_search`,
         {
-          "size": 1000,
+          "size": attributes.length,
           "query": {
             "terms": {
               "shiftid.keyword": attributes
@@ -301,14 +298,15 @@ const IndividualReportMap = (props: any) => {
   const getCategoryData = (data: any) => {
     console.log(data.data.indexValue)
     console.log(initialIds)
+    console.log(props.allFeatures)
     if (Array.isArray(allIds.current)) {
       const allIdspayload: any[] = []
       initialIds.forEach((id: any) => {
         const ids = props.allFeatures?.filter((item: any) => item.shiftid === id);
-        // console.log(ids)
-        allIdspayload.push(ids)
+        allIdspayload.push(ids);
       })
-      const Objects = allIdspayload.filter((item: any) => item[0]?.status.toLowerCase() === data.data.indexValue);
+      console.log(allIdspayload)
+      const Objects = allIdspayload?.filter((item: any) => item[0]?.status.toLowerCase() === data.data.indexValue);
       console.log(Objects)
       const ObjectIds = Objects.map((item: any) => item ? item[0].shiftid : "");
       console.log(ObjectIds)
@@ -337,7 +335,7 @@ const IndividualReportMap = (props: any) => {
         <>
           <div className={container}>
             <div className="graph-class-container">
-                 <div style={{top:0 , position: 'fixed', marginTop:"12rem" , marginLeft:'15rem'}}>
+                 <div style={{top:0 , position: 'fixed', marginTop:"12rem" , marginLeft:'2rem'}}>
                   <Typography style={{fontWeight:"530", fontSize:"20px" , fontFamily:"sans-serif"}}>{reportData?.label}</Typography>
                 </div>
               <div className={graphContainer} >
@@ -347,7 +345,7 @@ const IndividualReportMap = (props: any) => {
                       <ReveloPie
                         onClick={(data: any) => { getCategoryData(data) }}
                         data={reportOutput}
-                        valueFieldName={
+                        valueFieldName={  
                           reportValueFields
                         }
                       />
@@ -387,8 +385,7 @@ const IndividualReportMap = (props: any) => {
                               <RFeature
                                 geometry={
                                   new Point(feature.geometry.coordinates)
-                                }
-                              >
+                                }>
                               </RFeature>
                             </>
                           );
@@ -406,10 +403,8 @@ const IndividualReportMap = (props: any) => {
               textAlign: 'center',
               // height: "80vh",
               // overflowY: "auto"
-
             }}>
               {tableLoading ? (<>
-
                 <div
                   style={{
                     marginTop: "20px",

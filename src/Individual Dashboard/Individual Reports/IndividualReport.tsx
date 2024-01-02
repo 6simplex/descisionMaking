@@ -485,6 +485,7 @@ const IndividualReport = (props: any) => {
 console.log(payload)
   const handleData = (data:any) => {
     console.log(data)
+    console.log(data[0]?.shifttime.split(' ')[0])
     setPayload(data);
   };
   return (
@@ -542,7 +543,7 @@ console.log(payload)
 
               } else {
                 const data = payload;
-                const fileName = `tmsreport_${payload[0].shiftdate}`;
+                const fileName = `tmsreport_${payload[0].shifttime.split(' ')[0]}`;
                 const exportType = exportFromJSON.types.xls;
                 const fields = {
                   shiftdate: "Shift Date",
