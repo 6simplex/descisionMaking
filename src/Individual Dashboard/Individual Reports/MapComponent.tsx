@@ -10,6 +10,7 @@ import ReveloPie from "../../Dashboard/Dashboard/Widgets/ReveloPie/ReveloPie";
 import './report.css'
 import moment, { Moment } from 'moment';
 import { ColumnsType } from 'antd/es/table';
+
 import Typography from "antd/es/typography/Typography";
 const center = fromLonLat([79.081993, 21.147913]);
 interface YourDataItem {
@@ -23,10 +24,9 @@ interface FilterDropdownProps {
   clearFilters: () => void;
 }
 
-
 const IndividualReportMap = (props: any) => {
-  console.log(props)
   const [reportData, setReportData] = useState<any>();
+  const [allFeatures, setAllFeatures] = useState<any>();
   const [reportValueFields, setReportValueFields] = useState<any[]>([]);
   const [reportOutput, setReportOutput] = useState<any[]>([]);
   const [initialIds, setInitialIds] = useState<any>();
@@ -37,6 +37,7 @@ const IndividualReportMap = (props: any) => {
   const vectorRef = useRef<RLayerVector | any>(null);
   const mapRef = useRef<RMap>(null)
   const [features, setFeatures] = useState<any>();
+  const [date, setDate] = useState<any>();
   const [properties, setProperties] = useState<any>();
   const serverUrl = window.__rDashboard__.serverUrl;
   const allIds = useRef<any[]>([]);
@@ -44,27 +45,33 @@ const IndividualReportMap = (props: any) => {
   const graphContainer = props.name === 'valuestatus' || "morningshift" || "afternoonshift" ? 'graph-table-wrapper' : 'graph-map-wrapper'
   const container = props.name === 'valuestatus' || "morningshift" || "afternoonshift" ? 'table-wrapper' : 'map-wrapper'
 
+
   useEffect(() => {
-    let data:any;
-    data = filteredData
-    console.log(data)
-   
-    if (filteredData) {    
-      props.onDataFromChild(filteredData);
+
+    if (filteredData.length > 0 ) { 
+      const dataToSend = {
+        properties: filteredData,
+        selectedDate: date
+      };   
+      props.onDataFromChild(dataToSend); 
+    } else {
+      const dataToSend = {
+        properties: properties,
+        selectedDate: date
+      };  
+      props.onDataFromChild(dataToSend);
     }
-  }, [filteredData]);
+  }, [filteredData , properties]);
 
   const handleDateChange = (date: Moment | null) => {
-    console.log(date)
     setSelectedDate(date);
-
     if (date) {
       const formattedSelectedDate = date.format('YYYY-MM-DD');
+      console.log(formattedSelectedDate)
+      setDate(formattedSelectedDate)
       const filtered = properties.filter((item: any) =>
         moment(item.shifttime, 'YYYY-MM-DD HH:mm:ss [GMT]Z').format('YYYY-MM-DD') === formattedSelectedDate
       );
-      console.log(properties)
-      console.log(filtered)
       setFilteredData(filtered);
     } else {
       setFilteredData([]);
@@ -127,8 +134,8 @@ const IndividualReportMap = (props: any) => {
   ];
 
   useEffect(() => {
+
     getIndividualReport();
-    console.log(reportData)
   }, [props.name])
 
   const getIndividualReport = async () => {
@@ -189,10 +196,10 @@ const IndividualReportMap = (props: any) => {
         payload.push(outPut._source);
       });
       setReportOutput(payload);
+      console.log(payload)
       if (Array.isArray(payload) && payload.length > 0) {
         const metadataString = payload ? payload[0].metadata : ""
         const metadata = JSON.parse(metadataString);
-        console.log(metadata.mainEntityIDs)
         setInitialIds(metadata.mainEntityIDs)
         getEntityData(metadata.mainEntityIDs)
       }
@@ -204,7 +211,6 @@ const IndividualReportMap = (props: any) => {
   }
 
   const getEntityData = async (attributes: any) => {
-    console.log(attributes)
     setTableLoading(true)
     let payload: any[] = [];
     let jurisdictionType = props.jurisdiction?.type;
@@ -215,6 +221,7 @@ const IndividualReportMap = (props: any) => {
     } else {
       jurisdiction.country = "India";
     }
+    console.log(attributes)
     // await axios.post(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query`,
     //   {
     //     query: {
@@ -284,36 +291,38 @@ const IndividualReportMap = (props: any) => {
         return message.error("Something went Wrong");
       }
       reportOutPut.data.hits.hits.forEach((outPut: any) => {
-        console.log(outPut._source)
         payload.push(outPut._source);
       });
-      setProperties(payload);
+      setProperties(payload);  
+      setAllFeatures(payload) 
       setTableLoading(false);
     } catch (err) {
       console.log(err)
       setTableLoading(false);
     }
-
   }
   const getCategoryData = (data: any) => {
-    console.log(data.data.indexValue)
-    console.log(initialIds)
-    console.log(props.allFeatures)
-    if (Array.isArray(allIds.current)) {
       const allIdspayload: any[] = []
+    if (Array.isArray(allIds.current)) {   
       initialIds.forEach((id: any) => {
-        const ids = props.allFeatures?.filter((item: any) => item.shiftid === id);
-        allIdspayload.push(ids);
+        const ids = allFeatures?.filter((item: any) => item.shiftid === id);
+        // console.log(ids[0])
+        if (ids.length > 0) {
+          const extractedObject = ids[0];
+          allIdspayload.push(extractedObject);
+        }      
       })
       console.log(allIdspayload)
-      const Objects = allIdspayload?.filter((item: any) => item[0]?.status.toLowerCase() === data.data.indexValue);
+      const Objects = allIdspayload?.filter((item: any) => item?.status.toLowerCase() === data.data.indexValue);
       console.log(Objects)
-      const ObjectIds = Objects.map((item: any) => item ? item[0].shiftid : "");
-      console.log(ObjectIds)
-      getEntityData(ObjectIds)
+      setProperties(Objects);   
+      // const ObjectIds = Objects.map((item: any) => item ? item.shiftid : "");
+      // getEntityData(ObjectIds)
     }
   }
-  console.log(reportData)
+
+
+
   return (<>
     {loading ? (
       <>

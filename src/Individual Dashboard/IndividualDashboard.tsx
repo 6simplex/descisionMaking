@@ -32,7 +32,7 @@ const IndividualDashboard = (props: Props) => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={[0, 48]}>
       <Layout style={layoutStyle}>
-        <Header style={headerStyle}><ReveloHeader userName={userInfo.userInfo.userName} orgName={userInfo.orgName} projectName={project.label} projectNameColor={userInfo.orgUXInfo.colors.textColor} iconColor={userInfo.orgUXInfo.colors.primaryDarkColor}/></Header>
+        <Header style={headerStyle}><ReveloHeader userName={userInfo.userInfo.userName} orgName={userInfo.orgName} projectName={userInfo.userInfo.customerInfo.customerUXInfo.label} projectNameColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.textColor} iconColor={userInfo.userInfo.customerInfo.customerUXInfo.colors.primaryDarkColor} /></Header>
         <Content style={contentStyle}>
           {/* content{props.statsId} */}
           <IndividualReport reportName={props.reportName}/>

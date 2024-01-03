@@ -20,6 +20,7 @@
     "cytoscape": "^3.26.0",
     "dayjs": "^1.11.10",
     "export-from-json": "^1.7.3",
+    "idb": "^8.0.0",
     "moment": "^2.30.1",
     "nuka-carousel": "^7.0.0",
     "ol": "^8.1.0",

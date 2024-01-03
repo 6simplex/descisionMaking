@@ -12,10 +12,8 @@ type ChildProps ={
   onClick: (data: any) => void;
 };
 const ReveloPie: React.FC<Props & ChildProps> = (props) => {
-  console.log(props)
   const handleClick = (data:any) => {
     props.onClick(data);
-    console.log(data)
    };
    const autoCaptialize = (str: any): string => {
     return str.charAt(0).toUpperCase() + str.slice(1);

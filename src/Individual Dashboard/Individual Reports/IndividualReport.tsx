@@ -9,6 +9,7 @@ import cytoscape, { EdgeDefinition, NodeDefinition } from "cytoscape";
 import axios from "axios";
 import dayjs from "dayjs";
 import { formatDateString } from "../../utils/map";
+import { addData, getAllData } from '../IndividualReportDb';
 import exportFromJSON from "export-from-json";
 import { DownloadOutlined, RedoOutlined } from "@ant-design/icons";
 import { getCurrentDateDDMMYYYY } from "../../utils/cutsomhooks";
@@ -21,7 +22,6 @@ const IndividualReport = (props: any) => {
   const [loading, setLoading] = useState(true);
   const [attrProperties, setattrProperties] = useState<any>();
   const [jurisdiction, setJurisdiction] = useState<any>();
-  const [downloadData, setDownloadData] = useState<any>();
   const [selectedValues, setSelectedValues] = useState<any>({});
   const [selectedOption, setSelectedOption] = useState<any>({});
   const [disabledPanels, setDisabledPanels] = useState<any>({});
@@ -42,7 +42,6 @@ const IndividualReport = (props: any) => {
   let ancestorsMap: any = new Map();
   let widgetsMap = new Map(childWidget);
   let defaultvalueRef: any = useRef();
-  console.log(userInfo.userInfo.jurisdictions[0].type)
   const buildCompoundCYGraph = (dataGraph: any) => {
     const tempCyGraph = CyCMGraph(dataGraph);
     const roots = tempCyGraph.elements().roots();
@@ -405,7 +404,6 @@ const IndividualReport = (props: any) => {
     });
     return arras.map((node: any, index: any) => {
       const selectOption = createEntitySelectorPanel(selectedValues[node.name], node)
-      console.log(defaultvalueRef.current)
       return (
         <>
           <div style={{ display: 'inline-flex', flexDirection: 'column', justifyContent: 'space-around', alignItems: 'left', marginLeft: '10px' }}>
@@ -436,58 +434,71 @@ const IndividualReport = (props: any) => {
       );
     });
   };
-  useEffect(() => {
-    getEntityData()
-  }, [])
-  const getEntityData = async () => {
-    // console.log(attributes)
-    setLoading(true)
-    let payload: any[] = [];
-    let jurisdictionType = props.jurisdiction?.type;
-    let jurisdictionName = props.jurisdiction?.name;
-    const jurisdiction: any = {};
-    if (jurisdictionType && jurisdictionName) {
-      jurisdiction[jurisdictionType] = jurisdictionName;
-    } else {
-      jurisdiction.country = "India";
-    }
-    // console.log(attributes)
-    await axios.get(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query?country=India`)
-      .then((res) => {
-        console.log(res.data)
-        res.data?.features.forEach((el: any) => {
-          const date = el.properties.shifttime
-          const dateObject = new Date(date);
-          const shiftDate = dateObject.toISOString().split('T')[0];
-          payload.push({
-            shiftname: el.properties.shiftname,
-            status: el.properties.status,
-            blocksid: el.properties.blocksid,
-            shiftid: el.properties.shiftid,
-            zone: el.properties.zone,
-            shiftdate: shiftDate,
-            username: el.properties.username
-            // unit:el.properties.unit
-          })
-        })
-        console.log(payload)
-        setattrProperties(payload)
-        setDownloadData(payload)
-        // allIds.current = payload
-        // setFeatures(res.data.features);
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.log(err)
-        setLoading(false)
-      })
-  }
-console.log(payload)
-  const handleData = (data:any) => {
-    console.log(data)
-    console.log(data[0]?.shifttime.split(' ')[0])
+
+  // const getEntityData = async () => {
+  //   setLoading(true)
+  //   let payload: any[] = [];
+  //   let jurisdictionType = props.jurisdiction?.type;
+  //   let jurisdictionName = props.jurisdiction?.name;
+  //   const jurisdiction: any = {};
+  //   if (jurisdictionType && jurisdictionName) {
+  //     jurisdiction[jurisdictionType] = jurisdictionName;
+  //   } else {
+  //     jurisdiction.country = "India";
+  //   }
+
+  //   await axios.get(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query?country=India`)
+  //     .then((res) => {
+
+  //       res.data?.features.forEach((el: any) => {
+  //         const date = el.properties.shifttime
+  //         const dateObject = new Date(date);
+  //         const shiftDate = dateObject.toISOString().split('T')[0];
+  //         payload.push({
+  //           shiftname: el.properties.shiftname,
+  //           status: el.properties.status,
+  //           blocksid: el.properties.blocksid,
+  //           shiftid: el.properties.shiftid,
+  //           zone: el.properties.zone,
+  //           shiftdate: shiftDate,
+  //           username: el.properties.username
+  //           // unit:el.properties.unit
+  //         })
+  //       })
+  //       console.log(payload)
+  //       // payload?.forEach(async (item: any) => {
+  //       //   await addData(item.shiftid, item);
+  //       //   const allData = await getAllData();
+  //       //   console.log('Data from IndexedDB:', allData);
+  //       // });
+  //       setattrProperties(payload)
+
+  //       setLoading(false)
+  //     })
+  //     .catch((err) => {
+  //       console.log(err)
+  //       setLoading(false)
+  //     })
+  // }
+
+
+  // // const fetchDataFromDB = async () => {
+  // //   try {
+  // //     const allData = await getAllData();
+  // //     console.log('Data from IndexedDB:', allData);
+  // //   } catch (error) {
+  // //     console.error('Error fetching data from IndexedDB:', error);
+  // //   }
+  // // };
+
+  // // fetchDataFromDB();
+
+
+  const handleData = (data: any) => {
+
     setPayload(data);
   };
+  console.log(payload)
   return (
     <>
       <div className='widget-wrapper'  >
@@ -539,11 +550,11 @@ console.log(payload)
           <Button
             type="primary"
             onClick={() => {
-              if (payload.length === 0) {
-
-              } else {
-                const data = payload;
-                const fileName = `tmsreport_${payload[0].shifttime.split(' ')[0]}`;
+              if (payload.properties.length > 0) {
+                const data = payload.properties;
+                const currentDate = new Date();
+                const formattedDate = currentDate.toISOString().split('T')[0];
+                const fileName = `tmsreport_${payload.selectedDate ? payload.selectedDate : formattedDate}`;
                 const exportType = exportFromJSON.types.xls;
                 const fields = {
                   shiftdate: "Shift Date",
@@ -572,15 +583,14 @@ console.log(payload)
       <Divider />
       <div>
         <>
-          <div className="main-wrapper"><IndividualReportMap
-            jurisdiction={jurisdiction}
-            name={name}
-            projectName={projectName}
-            allFeatures={attrProperties}
-            date={date} 
-            onDataFromChild={handleData}
+          <div className="main-wrapper">
+            <IndividualReportMap
+              jurisdiction={jurisdiction}
+              name={name}
+              projectName={projectName}
+              onDataFromChild={handleData}
             />
-            </div>
+          </div>
         </>
       </div>
     </>
