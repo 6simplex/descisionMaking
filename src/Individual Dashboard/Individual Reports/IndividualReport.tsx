@@ -557,7 +557,7 @@ const IndividualReport = (props: any) => {
                 const fileName = `tmsreport_${payload.selectedDate ? payload.selectedDate : formattedDate}`;
                 const exportType = exportFromJSON.types.xls;
                 const fields = {
-                  shiftdate: "Shift Date",
+                  shifttime: "Shift Date",
                   username: "Vendor Name",
                   shiftname: "Shift",
                   zone: "Zone",

@@ -12,6 +12,7 @@ import moment, { Moment } from 'moment';
 import { ColumnsType } from 'antd/es/table';
 
 import Typography from "antd/es/typography/Typography";
+import { AnyObject } from "antd/es/_util/type";
 const center = fromLonLat([79.081993, 21.147913]);
 interface YourDataItem {
   shiftid: any;
@@ -37,6 +38,7 @@ const IndividualReportMap = (props: any) => {
   const vectorRef = useRef<RLayerVector | any>(null);
   const mapRef = useRef<RMap>(null)
   const [features, setFeatures] = useState<any>();
+  const [searchAfterValue, setSearchAfterValue] = useState(null);
   const [date, setDate] = useState<any>();
   const [properties, setProperties] = useState<any>();
   const serverUrl = window.__rDashboard__.serverUrl;
@@ -74,6 +76,7 @@ const IndividualReportMap = (props: any) => {
       );
       setFilteredData(filtered);
     } else {
+      setDate('')
       setFilteredData([]);
     }
   };
@@ -222,6 +225,8 @@ const IndividualReportMap = (props: any) => {
       jurisdiction.country = "India";
     }
     console.log(attributes)
+    const batchSize = 1000;
+    let allFetchedHits:any[] = [];
     // await axios.post(`${serverUrl}/conceptmodels/${projectConceptModel.name}/entities/shift/query`,
     //   {
     //     query: {
@@ -277,24 +282,61 @@ const IndividualReportMap = (props: any) => {
     let protocol = userInfo.userInfo.customerInfo.outputStore.securityInfo.isSSLEnabled ? "https" : "http";
     let domain = `${userInfo.userInfo.customerInfo.outputStore.hostName}:${userInfo.userInfo.customerInfo.outputStore.portNumber}`;
     try {
-      const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_shiftdetailed_features/_search`,
-        {
-          "size": attributes.length,
-          "query": {
-            "terms": {
-              "shiftid.keyword": attributes
+      // const reportOutPut = await axios.post(`${protocol}://${domain}/report_${project.name}_shiftdetailed_features/_search?scroll=1m`,
+      //   {
+      //     "size": attributes.leng,
+      //     "query": {
+      //       "terms": {
+      //         "shiftid.keyword": attributes
+      //       }
+      //     },
+      //     sort: [{ "shiftid.keyword": "asc" }], 
+      //     search_after: searchAfterValue !== null ? [searchAfterValue] : undefined,
+      //   })
+      //   const scrollId = reportOutPut.data._scroll_id;
+
+      //   // Use the scrollId to get the next set of results
+      //   const nextScrollResponse = await axios.post(`${protocol}://${domain}/_search/scroll?scroll=1m`, {
+      //     scroll_id: scrollId
+      //   });
+      // if (nextScrollResponse.data.error) {
+      //   setTableLoading(false);
+      //   return message.error("Something went Wrong");
+      // }
+      // nextScrollResponse.data.hits.hits.forEach((outPut: any) => {
+      //   payload.push(outPut._source);
+      // });
+      // setSearchAfterValue(
+      //   nextScrollResponse.data.hits.hits.length > 0
+      //     ? nextScrollResponse.data.hits.hits[nextScrollResponse.data.hits.hits.length - 1].sort
+      //     : null
+      // );
+      // setProperties(payload);  
+      // setAllFeatures(payload) 
+      for (let i = 0; i < attributes.length; i += batchSize) {
+        const batchShiftIds = attributes.slice(i, i + batchSize);
+  
+        const scrollResponse = await axios.post(`${protocol}://${domain}/report_${project.name}_shiftdetailed_features/_search?scroll=10m`, {
+          size: batchShiftIds.length,
+          query: {
+            terms: {
+              "shiftid.keyword": batchShiftIds
             }
-          }
-        })
-      if (reportOutPut.data.error) {
-        setTableLoading(false);
-        return message.error("Something went Wrong");
+          },
+          sort: [{ "shiftid.keyword": "asc" }]
+        });
+  
+        const fetchedHits = scrollResponse.data.hits.hits.map((hit:any) => hit._source);
+        
+        // Collect the fetchedHits into the allFetchedHits array
+        allFetchedHits = [...allFetchedHits, ...fetchedHits];
+        console.log(`Processed batch ${i / batchSize + 1} of records`);
       }
-      reportOutPut.data.hits.hits.forEach((outPut: any) => {
-        payload.push(outPut._source);
-      });
-      setProperties(payload);  
-      setAllFeatures(payload) 
+  
+      // Process the allFetchedHits array containing all records
+      console.log(allFetchedHits);
+      setAllFeatures(allFetchedHits)
+      setProperties(allFetchedHits)
       setTableLoading(false);
     } catch (err) {
       console.log(err)
@@ -303,17 +345,19 @@ const IndividualReportMap = (props: any) => {
   }
   const getCategoryData = (data: any) => {
       const allIdspayload: any[] = []
-    if (Array.isArray(allIds.current)) {   
-      initialIds.forEach((id: any) => {
-        const ids = allFeatures?.filter((item: any) => item.shiftid === id);
-        // console.log(ids[0])
-        if (ids.length > 0) {
-          const extractedObject = ids[0];
-          allIdspayload.push(extractedObject);
-        }      
-      })
-      console.log(allIdspayload)
-      const Objects = allIdspayload?.filter((item: any) => item?.status.toLowerCase() === data.data.indexValue);
+    if (Array.isArray(allIds.current)) { 
+      console.log(initialIds.length) 
+      console.log(allFeatures) 
+      // initialIds.forEach((id: any) => {
+      //   const ids = allFeatures?.filter((item: any) => item.shiftid === id);
+      //   // console.log(ids[0])
+      //   if (ids.length > 0) {
+      //     const extractedObject = ids[0];
+      //     allIdspayload.push(extractedObject);
+      //   }      
+      // })
+      // console.log(allIdspayload)
+      const Objects = allFeatures?.filter((item: any) => item?.status.toLowerCase() === data.data.indexValue);
       console.log(Objects)
       setProperties(Objects);   
       // const ObjectIds = Objects.map((item: any) => item ? item.shiftid : "");
